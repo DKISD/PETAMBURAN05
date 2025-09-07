@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PETAMBURAN 05</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/x-icon" href="https://lh3.googleusercontent.com/d/1tZC2bQXQnX7zi9WR8eDBtcTl5uOEAFKf">  
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SwiperJS CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <style>
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+            background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+            background-size: 20px 20px;
+        }
+        .swiper-container {
+            width: 100%;
+            padding-top: 50px;
+            padding-bottom: 50px;
+        }
+        .swiper-slide {
+            background-position: center;
+            background-size: cover;
+            width: 340px;
+            height: 450px;
+            transform: scale(0.85);
+            opacity: 0.7;
+            transition: transform 0.4s, opacity 0.4s;
+        }
+        .swiper-slide-active {
+            transform: scale(1);
+            opacity: 1;
+        }
+        .swiper-button-next, .swiper-button-prev {
+            color: #ffffff;
+            transform: scale(0.7);
+        }
+        .swiper-button-next:after, .swiper-button-prev:after {
+            font-size: 32px;
+            font-weight: 800;
+        }
+        .modal, #loader {
+            transition: opacity 0.25s ease;
+        }
+        .modal-body {
+            max-height: 75vh;
+        }
+        /* Animasi Spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #fff;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white antialiased flex items-center justify-center min-h-screen">
+
+    <!-- Loader -->
+    <div id="loader" class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-70">
+        <div class="spinner"></div>
+    </div>
+     <!-- Custom Alert -->
+    <div id="custom-alert" class="hidden fixed top-5 right-5 z-[101] p-4 rounded-md text-white">
+        <p id="custom-alert-message"></p>
+    </div>
+
+
+    <!-- Kontainer Utama -->
+    <div class="container mx-auto px-4 w-full">
+
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 id="school-name" class="text-4xl sm:text-5xl font-bold tracking-tight text-white">
+                Portal Aplikasi Sekolah
+            </h1>
+            <p class="mt-3 max-w-xl mx-auto text-lg text-gray-400">
+                Geser untuk menjelajahi informasi dan aplikasi.
+            </p>
+            <!-- Ikon Media Sosial -->
+            <div class="mt-6 flex justify-center items-center space-x-6">
+                <a id="whatsapp-link" href="#" class="text-gray-400 hover:text-green-500 transition-colors duration-300" aria-label="WhatsApp">
+                    <i class="fab fa-whatsapp fa-2x"></i>
+                </a>
+                <a id="facebook-link" href="#" class="text-gray-400 hover:text-blue-600 transition-colors duration-300" aria-label="Facebook">
+                    <i class="fab fa-facebook fa-2x"></i>
+                </a>
+                <a id="instagram-link" href="#" class="text-gray-400 hover:text-pink-500 transition-colors duration-300" aria-label="Instagram">
+                    <i class="fab fa-instagram fa-2x"></i>
+                </a>
+                <button id="admin-button" onclick="openModal('modal-login')" class="text-gray-400 hover:text-yellow-500 transition-colors duration-300" aria-label="Admin Login">
+                    <i id="admin-icon" class="fas fa-user-shield fa-2x"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Swiper Carousel Container -->
+        <main class="swiper-container mySwiper">
+            <div class="swiper-wrapper">
+
+                <!-- Kartu 1: VISI MISI -->
+                <div class="swiper-slide bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 flex flex-col justify-center items-center text-center cursor-pointer hover:border-cyan-500" onclick="openModal('modal-visi-misi')">
+                    <img id="logo-sekolah" src="https://placehold.co/100x100/1E293B/94A3B8?text=Logo" alt="Visi Misi" class="w-24 h-24 rounded-full object-cover mb-4">
+                    <h3 class="text-2xl font-semibold text-white mb-2">VISI & MISI</h3>
+                    <p class="text-gray-400">Klik untuk melihat Visi dan Misi sekolah.</p>
+                </div>
+
+                <!-- Kartu 2: Pengumuman -->
+                <div class="swiper-slide bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 flex flex-col items-center text-center">
+                    <div class="text-orange-400 mb-4">
+                        <i class="fa-solid fa-bullhorn fa-3x"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-white mb-4">PENGUMUMAN</h3>
+                    <div class="flex flex-col space-y-3 w-full mt-auto">
+                        <button id="btn-pengumuman-1" class="bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-orange-700 transition-colors" onclick="openModal('modal-pengumuman-1')">Pengumuman 1</button>
+                        <button id="btn-pengumuman-2" class="bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-orange-700 transition-colors" onclick="openModal('modal-pengumuman-2')">Pengumuman 2</button>
+                        <button id="btn-pengumuman-3" class="bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-orange-700 transition-colors" onclick="openModal('modal-pengumuman-3')">Pengumuman 3</button>
+                    </div>
+                </div>
+                
+                <!-- Kartu 3: Sambutan Kepala Sekolah -->
+                <div class="swiper-slide rounded-2xl shadow-lg border border-gray-700 overflow-hidden cursor-pointer group" onclick="openModal('modal-kepsek')">
+                    <img id="foto-kepsek" src="https://placehold.co/400x600/334155/E2E8F0?text=Foto+Kepsek" alt="Foto Kepala Sekolah" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/60 flex flex-col justify-end p-6">
+                        <h3 id="nama-kepsek-kartu" class="text-2xl font-bold text-white">Sambutan Kepala Sekolah</h3>
+                        <p class="text-gray-300 mt-1">Klik untuk membaca sambutan.</p>
+                    </div>
+                </div>
+
+                <!-- Kartu 4: 7KAIH -->
+                <div class="swiper-slide bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 flex flex-col items-center text-center">
+                    <div class="text-purple-400 mb-4"> <i class="fa-solid fa-shield-heart fa-3x"></i></div>
+                    <h3 class="text-2xl font-semibold text-white mb-2">JURNAL 7KAIH</h3>
+                    <p class="text-gray-400 flex-grow">Jurnal Pembiasaan 7 Kebiasaan Anak Indonesia Hebat</p>
+                    <a href="https://bangbin85.github.io/pm/7KAIH.html" class="mt-auto w-full text-center bg-purple-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-purple-700 transition-colors">Cek dan Input</a>
+                </div>
+
+                <!-- Kartu 5: Jadwal Piket -->
+                <div class="swiper-slide bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 flex flex-col items-center text-center">
+                    <div class="text-emerald-400 mb-4"><i class="fa-solid fa-calendar-days fa-3x"></i></div>
+                    <h3 class="text-2xl font-semibold text-white mb-2">INPUT PIKET</h3>
+                    <p class="text-gray-400 flex-grow">Input piket guru dan staf untuk hari ini.</p>
+                    <a href="Piket" class="mt-auto w-full text-center bg-emerald-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-emerald-700 transition-colors">Piket</a>
+                </div>
+
+                <!-- Kartu 6: Jurnal Mengajar -->
+                <div class="swiper-slide bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 flex flex-col items-center text-center">
+                     <div class="text-pink-400 mb-4"><i class="fa-solid fa-book-open-reader fa-3x"></i></div>
+                    <h3 class="text-2xl font-semibold text-white mb-2">ADM GURU</h3>
+                    <p class="text-gray-400 flex-grow">Akses dan isi Administrasi Guru secara digital.</p>
+                    <a href="Jurnal" class="mt-auto w-full text-center bg-pink-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-pink-700 transition-colors">Guru</a>
+                    <a href="Admin" class="mt-auto w-full text-center bg-pink-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-green-700 transition-colors">Admin</a>
+                </div>
+
+            </div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </main>
+    </div>
+
+    <!-- === KUMPULAN MODAL === -->
+    <!-- Modal Login Admin -->
+    <div id="modal-login" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
+        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-sm w-full p-6" onclick="event.stopPropagation()">
+            <h2 class="text-2xl font-bold mb-4 text-center">Login Admin</h2>
+            <div id="login-error" class="hidden bg-red-500 text-white text-sm p-2 rounded-md mb-4"></div>
+            <form onsubmit="event.preventDefault(); handleAdminLogin();">
+                <div class="mb-4">
+                    <label for="username" class="block mb-2 text-sm font-medium text-gray-300">Username</label>
+                    <input type="text" id="username" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-yellow-500 focus:border-yellow-500 block w-full p-2.5" required>
+                </div>
+                <div class="mb-6">
+                    <label for="password" class="block mb-2 text-sm font-medium text-gray-300">Password</label>
+                    <input type="password" id="password" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-yellow-500 focus:border-yellow-500 block w-full p-2.5" required>
+                </div>
+                <button type="submit" id="login-button" class="w-full text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:outline-none focus:ring-yellow-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Visi Misi -->
+    <div id="modal-visi-misi" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
+        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-2xl w-full p-6" onclick="event.stopPropagation()">
+            <h2 class="text-2xl font-bold mb-4 border-b border-gray-600 pb-2">Visi & Misi Sekolah</h2>
+            <div class="max-h-[60vh] overflow-y-auto pr-2">
+                <h3 class="text-xl font-semibold text-cyan-400 mt-2">Visi</h3>
+                <p id="visi-text" class="mt-1 text-gray-300"></p>
+                <h3 class="text-xl font-semibold text-cyan-400 mt-4">Misi</h3>
+                <div id="misi-text" class="mt-1 space-y-2 text-gray-300"></div>
+                 <h3 class="text-xl font-semibold text-cyan-400 mt-4">Tujuan</h3>
+                <div id="tujuan-text" class="mt-1 space-y-2 text-gray-300"></div>
+            </div>
+            <button class="mt-6 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-visi-misi')">Tutup</button>
+        </div>
+    </div>
+    
+    <!-- Modal Pengumuman 1 -->
+    <div id="modal-pengumuman-1" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
+        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-lg w-full p-6" onclick="event.stopPropagation()">
+            <h2 id="judul-pengumuman-1" class="text-2xl font-bold mb-2"></h2>
+            <img id="img-pengumuman-1" src="" class="w-full h-auto rounded-md my-4 hidden">
+            <p id="isi-pengumuman-1" class="text-gray-300 whitespace-pre-wrap"></p>
+            <a id="link-pengumuman-1" href="#" target="_blank" class="hidden mt-4 text-cyan-400 hover:underline">Lihat Dokumen</a>
+            <button class="mt-6 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-pengumuman-1')">Tutup</button>
+        </div>
+    </div>
+
+    <!-- Modal Pengumuman 2 -->
+    <div id="modal-pengumuman-2" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
+        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-lg w-full p-6" onclick="event.stopPropagation()">
+            <h2 id="judul-pengumuman-2" class="text-2xl font-bold mb-2"></h2>
+            <img id="img-pengumuman-2" src="" class="w-full h-auto rounded-md my-4 hidden">
+            <p id="isi-pengumuman-2" class="text-gray-300 whitespace-pre-wrap"></p>
+            <a id="link-pengumuman-2" href="#" target="_blank" class="hidden mt-4 text-cyan-400 hover:underline">Lihat Dokumen</a>
+            <button class="mt-6 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-pengumuman-2')">Tutup</button>
+        </div>
+    </div>
+
+    <!-- Modal Pengumuman 3 -->
+    <div id="modal-pengumuman-3" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
+        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-lg w-full p-6" onclick="event.stopPropagation()">
+            <h2 id="judul-pengumuman-3" class="text-2xl font-bold mb-2"></h2>
+            <img id="img-pengumuman-3" src="" class="w-full h-auto rounded-md my-4 hidden">
+            <p id="isi-pengumuman-3" class="text-gray-300 whitespace-pre-wrap"></p>
+            <a id="link-pengumuman-3" href="#" target="_blank" class="hidden mt-4 text-cyan-400 hover:underline">Lihat Dokumen</a>
+            <button class="mt-6 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-pengumuman-3')">Tutup</button>
+        </div>
+    </div>
+    
+    <!-- Modal Kepala Sekolah -->
+    <div id="modal-kepsek" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
+         <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-2xl w-full p-6" onclick="event.stopPropagation()">
+            <h2 id="nama-kepsek-modal" class="text-2xl font-bold mb-2"></h2>
+            <p id="nip-kepsek-modal" class="text-sm text-gray-400 mb-4"></p>
+            <div id="sambutan-kepsek-text" class="max-h-[60vh] overflow-y-auto pr-2 text-gray-300 whitespace-pre-wrap"></div>
+            <button class="mt-6 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-kepsek')">Tutup</button>
+        </div>
+    </div>
+    
+    <!-- Modal Edit Data Admin -->
+    <div id="modal-edit" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
+        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-4xl w-full" onclick="event.stopPropagation()">
+            <form id="edit-form" onsubmit="event.preventDefault(); handleSaveChanges();" class="w-full">
+                <h2 class="text-2xl font-bold p-6 border-b border-gray-700">Edit Data Portal</h2>
+                <div class="p-6 overflow-y-auto modal-body grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Kolom 1 -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-yellow-400">Informasi Sekolah</h3>
+                        <div><label for="edit-nama-sekolah" class="text-sm">Nama Sekolah</label><input type="text" id="edit-nama-sekolah" class="w-full bg-gray-700 p-2 rounded mt-1"></div>
+                        <div><label for="edit-npsn" class="text-sm">NPSN</label><input type="text" id="edit-npsn" class="w-full bg-gray-700 p-2 rounded mt-1"></div>
+                        <div><label for="edit-alamat" class="text-sm">Alamat</label><textarea id="edit-alamat" class="w-full bg-gray-700 p-2 rounded mt-1" rows="2"></textarea></div>
+                        <div><label for="edit-phone" class="text-sm">Phone (62...)</label><input type="text" id="edit-phone" class="w-full bg-gray-700 p-2 rounded mt-1"></div>
+                        <div><label for="edit-logo" class="text-sm">URL Logo</label><input type="text" id="edit-logo" class="w-full bg-gray-700 p-2 rounded mt-1"></div>
+                        <h3 class="text-lg font-semibold text-yellow-400 pt-4">Kepala Sekolah</h3>
+                        <div><label for="edit-nama-kepsek" class="text-sm">Nama Kepala Sekolah</label><input type="text" id="edit-nama-kepsek" class="w-full bg-gray-700 p-2 rounded mt-1"></div>
+                        <div><label for="edit-nip-kepsek" class="text-sm">NIP</label><input type="text" id="edit-nip-kepsek" class="w-full bg-gray-700 p-2 rounded mt-1"></div>
+                        <div><label for="edit-foto-kepsek" class="text-sm">URL Foto</label><input type="text" id="edit-foto-kepsek" class="w-full bg-gray-700 p-2 rounded mt-1"></div>
+                         <h3 class="text-lg font-semibold text-yellow-400 pt-4">Media Sosial</h3>
+                        <div><label for="edit-facebook" class="text-sm">URL Facebook</label><input type="text" id="edit-facebook" class="w-full bg-gray-700 p-2 rounded mt-1"></div>
+                        <div><label for="edit-instagram" class="text-sm">URL Instagram</label><input type="text" id="edit-instagram" class="w-full bg-gray-700 p-2 rounded mt-1"></div>
+                    </div>
+                    <!-- Kolom 2 -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-yellow-400">Visi, Misi, Tujuan & Sambutan</h3>
+                        <div><label for="edit-visi" class="text-sm">Visi</label><textarea id="edit-visi" class="w-full bg-gray-700 p-2 rounded mt-1" rows="3"></textarea></div>
+                        <div><label for="edit-misi" class="text-sm">Misi (pisahkan per baris)</label><textarea id="edit-misi" class="w-full bg-gray-700 p-2 rounded mt-1" rows="4"></textarea></div>
+                        <div><label for="edit-tujuan" class="text-sm">Tujuan (pisahkan per baris)</label><textarea id="edit-tujuan" class="w-full bg-gray-700 p-2 rounded mt-1" rows="4"></textarea></div>
+                        <div><label for="edit-sambutan" class="text-sm">Sambutan Kepala Sekolah</label><textarea id="edit-sambutan" class="w-full bg-gray-700 p-2 rounded mt-1" rows="5"></textarea></div>
+                        
+                        <h3 class="text-lg font-semibold text-yellow-400 pt-4">Pengumuman</h3>
+                        <div class="border border-gray-700 p-3 rounded-lg">
+                            <p class="font-medium mb-2">Pengumuman 1</p>
+                            <div><label for="edit-judul-1" class="text-xs">Judul</label><input type="text" id="edit-judul-1" class="w-full bg-gray-600 p-1.5 rounded text-sm mt-1"></div>
+                            <div class="mt-2"><label for="edit-isi-1" class="text-xs">Isi</label><textarea id="edit-isi-1" class="w-full bg-gray-600 p-1.5 rounded text-sm mt-1" rows="4"></textarea></div>
+                            <div class="mt-2"><label for="edit-img-1" class="text-xs">URL Gambar</label><input type="text" id="edit-img-1" class="w-full bg-gray-600 p-1.5 rounded text-sm mt-1"></div>
+                            <div class="mt-2"><label for="edit-doc-1" class="text-xs">URL Dokumen</label><input type="text" id="edit-doc-1" class="w-full bg-gray-600 p-1.5 rounded text-sm mt-1"></div>
+                        </div>
+                         <div class="border border-gray-700 p-3 rounded-lg">
+                            <p class="font-medium mb-2">Pengumuman 2</p>
+                            <div><label for="edit-judul-2" class="text-xs">Judul</label><input type="text" id="edit-judul-2" class="w-full bg-gray-600 p-1.5 rounded text-sm mt-1"></div>
+                            <div class="mt-2"><label for="edit-isi-2" class="text-xs">Isi</label><textarea id="edit-isi-2" class="w-full bg-gray-600 p-1.5 rounded text-sm mt-1" rows="4"></textarea></div>
+                            <div class="mt-2"><label for="edit-img-2" class="text-xs">URL Gambar</label><input type="text" id="edit-img-2" class="w-full bg-gray-600 p-1.5 rounded text-sm mt-1"></div>
+                            <div class="mt-2"><label for="edit-doc-2" class="text-xs">URL Dokumen</label><input type="text" id="edit-doc-2" class="w-full bg-gray-600 p-1.5 rounded text-sm mt-1"></div>
+                        </div>
+                         <div class="border border-gray-700 p-3 rounded-lg">
+                            <p class="font-medium mb-2">Pengumuman 3</p>
+                           <div><label for="edit-judul-3" class="text-xs">Judul</label><input type="text" id="edit-judul-3" class="w-full bg-gray-600 p-1.5 rounded text-sm mt-1"></div>
+                            <div class="mt-2"><label for="edit-isi-3" class="text-xs">Isi</label><textarea id="edit-isi-3" class="w-full bg-gray-600 p-1.5 rounded text-sm mt-1" rows="4"></textarea></div>
+                            <div class="mt-2"><label for="edit-img-3" class="text-xs">URL Gambar</label><input type="text" id="edit-img-3" class="w-full bg-gray-600 p-1.5 rounded text-sm mt-1"></div>
+                            <div class="mt-2"><label for="edit-doc-3" class="text-xs">URL Dokumen</label><input type="text" id="edit-doc-3" class="w-full bg-gray-600 p-1.5 rounded text-sm mt-1"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 bg-gray-900 flex justify-end space-x-3 rounded-b-lg">
+                    <button type="button" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-md" onclick="closeModal('modal-edit')">Batal</button>
+                    <button type="submit" id="save-button" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-md">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SwiperJS JS -->
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+    <!-- Inisialisasi Swiper & Logika Modal -->
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygW-ntF-gzYfv_amlzu-XPzbgmQwIdEXA0a19xZoXW8J2Kom1iUcZbzglgOjeEC2KR/exec";
+        let isAdminLoggedIn = false;
+        let portalDataCache = null;
+
+        window.onload = () => {
+            var swiper = new Swiper(".mySwiper", {
+                effect: "coverflow",
+                grabCursor: true,
+                centeredSlides: true,
+                slidesPerView: "auto",
+                loop: true,
+                coverflowEffect: {
+                    rotate: 50,
+                    stretch: 0,
+                    depth: 100,
+                    modifier: 1,
+                    slideShadows: true,
+                },
+                navigation: {
+                    nextEl: ".swiper-button-next",
+                    prevEl: ".swiper-button-prev",
+                },
+            });
+
+            fetchPortalData();
+        };
+
+        // --- Logika Fetch Data ---
+        function fetchPortalData() {
+            document.getElementById('loader').classList.remove('hidden');
+            fetch(SCRIPT_URL + "?action=getPortalData")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        portalDataCache = data.data;
+                        populateData(portalDataCache);
+                    } else {
+                        showAlert(data.message, 'error');
+                    }
+                    document.getElementById('loader').classList.add('hidden');
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                    showAlert('Gagal memuat data. Periksa koneksi internet.', 'error');
+                    document.getElementById('loader').classList.add('hidden');
+                });
+        }
+
+        function populateData(data) {
+            // Data Sekolah
+            document.getElementById('school-name').textContent = data.schoolInfo['Nama Sekolah'];
+            document.getElementById('logo-sekolah').src = data.schoolInfo['Logo'];
+            document.getElementById('foto-kepsek').src = data.schoolInfo['Foto Kepala Sekolah'];
+            document.getElementById('nama-kepsek-kartu').textContent = data.schoolInfo['Nama Kepala Sekolah'];
+            document.getElementById('nama-kepsek-modal').textContent = `Sambutan ${data.schoolInfo['Nama Kepala Sekolah']}`;
+            document.getElementById('nip-kepsek-modal').textContent = `NIP. ${data.schoolInfo['NIP Kepala Sekolah']}`;
+            document.getElementById('sambutan-kepsek-text').textContent = data.schoolInfo['Sambutan'];
+
+            // Links
+            document.getElementById('whatsapp-link').href = `https://wa.me/${data.schoolInfo['Phone']}`;
+            document.getElementById('facebook-link').href = data.schoolInfo['Fasebook'];
+            document.getElementById('instagram-link').href = data.schoolInfo['Instagram'];
+
+            // Visi, Misi, Tujuan
+            document.getElementById('visi-text').textContent = data.schoolInfo['Visi'];
+            document.getElementById('misi-text').innerHTML = data.schoolInfo['Misi'].split('\n').map(item => `<p>${item}</p>`).join('');
+            document.getElementById('tujuan-text').innerHTML = data.schoolInfo['Tujuan'].split('\n').map(item => `<p>${item}</p>`).join('');
+
+
+            // Pengumuman
+            data.announcements.forEach((ann, index) => {
+                const i = index + 1;
+                document.getElementById(`btn-pengumuman-${i}`).textContent = ann.title || `Pengumuman ${i}`;
+                document.getElementById(`judul-pengumuman-${i}`).textContent = ann.title;
+                document.getElementById(`isi-pengumuman-${i}`).textContent = ann.content;
+                
+                const imgEl = document.getElementById(`img-pengumuman-${i}`);
+                if (ann.imageUrl) { imgEl.src = ann.imageUrl; imgEl.classList.remove('hidden');} 
+                else { imgEl.classList.add('hidden'); }
+                
+                const linkEl = document.getElementById(`link-pengumuman-${i}`);
+                if(ann.docUrl) { linkEl.href = ann.docUrl; linkEl.classList.remove('hidden');}
+                else { linkEl.classList.add('hidden'); }
+            });
+            if (isAdminLoggedIn) populateEditForm(data);
+        }
+        
+        function populateEditForm(data){
+            if(!data) return;
+            // School Info
+            document.getElementById('edit-nama-sekolah').value = data.schoolInfo['Nama Sekolah'];
+            document.getElementById('edit-npsn').value = data.schoolInfo['NPSN'];
+            document.getElementById('edit-alamat').value = data.schoolInfo['Alamat Sekolah'];
+            document.getElementById('edit-phone').value = data.schoolInfo['Phone'];
+            document.getElementById('edit-logo').value = data.schoolInfo['Logo'];
+            document.getElementById('edit-nama-kepsek').value = data.schoolInfo['Nama Kepala Sekolah'];
+            document.getElementById('edit-nip-kepsek').value = data.schoolInfo['NIP Kepala Sekolah'];
+            document.getElementById('edit-foto-kepsek').value = data.schoolInfo['Foto Kepala Sekolah'];
+            document.getElementById('edit-facebook').value = data.schoolInfo['Fasebook'];
+            document.getElementById('edit-instagram').value = data.schoolInfo['Instagram'];
+            document.getElementById('edit-visi').value = data.schoolInfo['Visi'];
+            document.getElementById('edit-misi').value = data.schoolInfo['Misi'];
+            document.getElementById('edit-tujuan').value = data.schoolInfo['Tujuan'];
+            document.getElementById('edit-sambutan').value = data.schoolInfo['Sambutan'];
+            
+            // Announcements
+             data.announcements.forEach((ann, index) => {
+                const i = index + 1;
+                document.getElementById(`edit-judul-${i}`).value = ann.title || '';
+                document.getElementById(`edit-isi-${i}`).value = ann.content || '';
+                document.getElementById(`edit-img-${i}`).value = ann.imageUrl || '';
+                document.getElementById(`edit-doc-${i}`).value = ann.docUrl || '';
+            });
+        }
+
+        // --- Logika Modal ---
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+        
+        function closeAllModals() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            });
+        }
+
+        // --- Logika Admin ---
+        function handleAdminLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginButton = document.getElementById('login-button');
+            const errorDiv = document.getElementById('login-error');
+            
+            loginButton.disabled = true;
+            loginButton.textContent = 'Logging in...';
+            errorDiv.classList.add('hidden');
+
+            const formData = new FormData();
+            formData.append('action', 'adminLogin');
+            formData.append('username', username);
+            formData.append('password', password);
+
+            fetch(SCRIPT_URL, { method: 'POST', body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        isAdminLoggedIn = true;
+                        closeModal('modal-login');
+                        setupAdminUI();
+                        populateEditForm(portalDataCache);
+                        openModal('modal-edit');
+                        showAlert('Login berhasil!', 'success');
+                    } else {
+                        errorDiv.textContent = data.message;
+                        errorDiv.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    console.error('Login error:', error);
+                    errorDiv.textContent = 'Terjadi kesalahan jaringan.';
+                    errorDiv.classList.remove('hidden');
+                })
+                .finally(() => {
+                    loginButton.disabled = false;
+                    loginButton.textContent = 'Login';
+                });
+        }
+
+        function setupAdminUI() {
+            const adminButton = document.getElementById('admin-button');
+            const adminIcon = document.getElementById('admin-icon');
+            adminIcon.classList.remove('fa-user-shield');
+            adminIcon.classList.add('fa-edit');
+            adminButton.setAttribute('onclick', "openModal('modal-edit')");
+        }
+        
+        function handleSaveChanges() {
+            const saveButton = document.getElementById('save-button');
+            saveButton.disabled = true;
+            saveButton.textContent = 'Menyimpan...';
+
+            const form = document.getElementById('edit-form');
+            const formData = new FormData(form);
+            const dataToPost = new FormData();
+            dataToPost.append('action', 'updatePortalData');
+            
+            // School Info Fields
+            const schoolInfoFields = [
+                'edit-nama-sekolah', 'edit-npsn', 'edit-alamat', 'edit-phone', 'edit-logo',
+                'edit-nama-kepsek', 'edit-nip-kepsek', 'edit-foto-kepsek', 'edit-facebook',
+                'edit-instagram', 'edit-visi', 'edit-misi', 'edit-tujuan', 'edit-sambutan'
+            ];
+            schoolInfoFields.forEach(id => {
+                 dataToPost.append(id, document.getElementById(id).value);
+            });
+
+            // Announcement Fields
+            for(let i = 1; i <= 3; i++){
+                dataToPost.append(`edit-judul-${i}`, document.getElementById(`edit-judul-${i}`).value);
+                dataToPost.append(`edit-isi-${i}`, document.getElementById(`edit-isi-${i}`).value);
+                dataToPost.append(`edit-img-${i}`, document.getElementById(`edit-img-${i}`).value);
+                dataToPost.append(`edit-doc-${i}`, document.getElementById(`edit-doc-${i}`).value);
+            }
+
+            fetch(SCRIPT_URL, { method: 'POST', body: dataToPost })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success) {
+                        closeModal('modal-edit');
+                        showAlert('Data berhasil diperbarui!', 'success');
+                        fetchPortalData(); // Refresh data
+                    } else {
+                        showAlert(`Gagal menyimpan: ${data.message}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Save error:', error);
+                    showAlert('Terjadi kesalahan jaringan saat menyimpan.', 'error');
+                })
+                .finally(() => {
+                    saveButton.disabled = false;
+                    saveButton.textContent = 'Simpan Perubahan';
+                });
+        }
+        
+        function showAlert(message, type = 'success') {
+            const alertBox = document.getElementById('custom-alert');
+            const messageP = document.getElementById('custom-alert-message');
+            
+            messageP.textContent = message;
+            alertBox.classList.remove('bg-green-500', 'bg-red-500', 'hidden');
+            
+            if (type === 'success') {
+                alertBox.classList.add('bg-green-500');
+            } else {
+                alertBox.classList.add('bg-red-500');
+            }
+            
+            alertBox.classList.remove('hidden');
+            
+            setTimeout(() => {
+                alertBox.classList.add('hidden');
+            }, 3000);
+        }
+
+    </script>
+</body>
+</html>
