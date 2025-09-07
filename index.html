@@ -4,16 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PETAMBURAN 05</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="https://lh3.googleusercontent.com/d/1tZC2bQXQnX7zi9WR8eDBtcTl5uOEAFKf">  
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- SwiperJS CSS -->
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
     <style>
         html, body {
@@ -75,20 +71,16 @@
 </head>
 <body class="bg-gray-900 text-white antialiased flex items-center justify-center min-h-screen">
 
-    <!-- Loader -->
     <div id="loader" class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-70">
         <div class="spinner"></div>
     </div>
-     <!-- Custom Alert -->
-    <div id="custom-alert" class="hidden fixed top-5 right-5 z-[101] p-4 rounded-md text-white">
+     <div id="custom-alert" class="hidden fixed top-5 right-5 z-[101] p-4 rounded-md text-white">
         <p id="custom-alert-message"></p>
     </div>
 
 
-    <!-- Kontainer Utama -->
     <div class="container mx-auto px-4 w-full">
 
-        <!-- Header -->
         <header class="text-center mb-8">
             <h1 id="school-name" class="text-4xl sm:text-5xl font-bold tracking-tight text-white">
                 Portal Aplikasi Sekolah
@@ -96,7 +88,6 @@
             <p class="mt-3 max-w-xl mx-auto text-lg text-gray-400">
                 Geser untuk menjelajahi informasi dan aplikasi.
             </p>
-            <!-- Ikon Media Sosial -->
             <div class="mt-6 flex justify-center items-center space-x-6">
                 <a id="whatsapp-link" href="#" class="text-gray-400 hover:text-green-500 transition-colors duration-300" aria-label="WhatsApp">
                     <i class="fab fa-whatsapp fa-2x"></i>
@@ -113,18 +104,15 @@
             </div>
         </header>
 
-        <!-- Swiper Carousel Container -->
         <main class="swiper-container mySwiper">
             <div class="swiper-wrapper">
 
-                <!-- Kartu 1: VISI MISI -->
                 <div class="swiper-slide bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 flex flex-col justify-center items-center text-center cursor-pointer hover:border-cyan-500" onclick="openModal('modal-visi-misi')">
                     <img id="logo-sekolah" src="https://placehold.co/100x100/1E293B/94A3B8?text=Logo" alt="Visi Misi" class="w-24 h-24 rounded-full object-cover mb-4">
                     <h3 class="text-2xl font-semibold text-white mb-2">VISI & MISI</h3>
                     <p class="text-gray-400">Klik untuk melihat Visi dan Misi sekolah.</p>
                 </div>
 
-                <!-- Kartu 2: Pengumuman -->
                 <div class="swiper-slide bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 flex flex-col items-center text-center">
                     <div class="text-orange-400 mb-4">
                         <i class="fa-solid fa-bullhorn fa-3x"></i>
@@ -137,7 +125,6 @@
                     </div>
                 </div>
                 
-                <!-- Kartu 3: Sambutan Kepala Sekolah -->
                 <div class="swiper-slide rounded-2xl shadow-lg border border-gray-700 overflow-hidden cursor-pointer group" onclick="openModal('modal-kepsek')">
                     <img id="foto-kepsek" src="https://placehold.co/400x600/334155/E2E8F0?text=Foto+Kepsek" alt="Foto Kepala Sekolah" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
                     <div class="absolute inset-0 bg-black/60 flex flex-col justify-end p-6">
@@ -146,7 +133,6 @@
                     </div>
                 </div>
 
-                <!-- Kartu 4: 7KAIH -->
                 <div class="swiper-slide bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 flex flex-col items-center text-center">
                     <div class="text-purple-400 mb-4"> <i class="fa-solid fa-shield-heart fa-3x"></i></div>
                     <h3 class="text-2xl font-semibold text-white mb-2">JURNAL 7KAIH</h3>
@@ -154,7 +140,6 @@
                     <a href="https://bangbin85.github.io/pm/7KAIH.html" class="mt-auto w-full text-center bg-purple-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-purple-700 transition-colors">Cek dan Input</a>
                 </div>
 
-                <!-- Kartu 5: Jadwal Piket -->
                 <div class="swiper-slide bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 flex flex-col items-center text-center">
                     <div class="text-emerald-400 mb-4"><i class="fa-solid fa-calendar-days fa-3x"></i></div>
                     <h3 class="text-2xl font-semibold text-white mb-2">INPUT PIKET</h3>
@@ -162,7 +147,6 @@
                     <a href="Piket" class="mt-auto w-full text-center bg-emerald-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-emerald-700 transition-colors">Piket</a>
                 </div>
 
-                <!-- Kartu 6: Jurnal Mengajar -->
                 <div class="swiper-slide bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 flex flex-col items-center text-center">
                      <div class="text-pink-400 mb-4"><i class="fa-solid fa-book-open-reader fa-3x"></i></div>
                     <h3 class="text-2xl font-semibold text-white mb-2">ADM GURU</h3>
@@ -177,8 +161,6 @@
         </main>
     </div>
 
-    <!-- === KUMPULAN MODAL === -->
-    <!-- Modal Login Admin -->
     <div id="modal-login" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
         <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-sm w-full p-6" onclick="event.stopPropagation()">
             <h2 class="text-2xl font-bold mb-4 text-center">Login Admin</h2>
@@ -197,9 +179,8 @@
         </div>
     </div>
 
-    <!-- Modal Visi Misi -->
     <div id="modal-visi-misi" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
-        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-2xl w-full p-6" onclick="event.stopPropagation()">
+        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-4xl w-full p-6" onclick="event.stopPropagation()">
             <h2 class="text-2xl font-bold mb-4 border-b border-gray-600 pb-2">Visi & Misi Sekolah</h2>
             <div class="max-h-[60vh] overflow-y-auto pr-2">
                 <h3 class="text-xl font-semibold text-cyan-400 mt-2">Visi</h3>
@@ -213,40 +194,44 @@
         </div>
     </div>
     
-    <!-- Modal Pengumuman 1 -->
-    <div id="modal-pengumuman-1" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
-        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-lg w-full p-6" onclick="event.stopPropagation()">
-            <h2 id="judul-pengumuman-1" class="text-2xl font-bold mb-2"></h2>
+<div id="modal-pengumuman-1" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
+    <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
+        <h2 id="judul-pengumuman-1" class="text-2xl font-bold mb-2 p-6 pb-0"></h2>
+        <div class="flex-1 overflow-y-auto p-6 pt-4">
             <img id="img-pengumuman-1" src="" class="w-full h-auto rounded-md my-4 hidden">
             <p id="isi-pengumuman-1" class="text-gray-300 whitespace-pre-wrap"></p>
-            <a id="link-pengumuman-1" href="#" target="_blank" class="hidden mt-4 text-cyan-400 hover:underline">Lihat Dokumen</a>
-            <button class="mt-6 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-pengumuman-1')">Tutup</button>
+            <a id="link-pengumuman-1" href="#" target="_blank" class="hidden mt-4 text-cyan-400 hover:underline block">Lihat Dokumen</a>
+        </div>
+        <div class="p-6 pt-0">
+            <button class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-pengumuman-1')">Tutup</button>
         </div>
     </div>
+</div>
 
-    <!-- Modal Pengumuman 2 -->
     <div id="modal-pengumuman-2" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
-        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-lg w-full p-6" onclick="event.stopPropagation()">
-            <h2 id="judul-pengumuman-2" class="text-2xl font-bold mb-2"></h2>
-            <img id="img-pengumuman-2" src="" class="w-full h-auto rounded-md my-4 hidden">
-            <p id="isi-pengumuman-2" class="text-gray-300 whitespace-pre-wrap"></p>
-            <a id="link-pengumuman-2" href="#" target="_blank" class="hidden mt-4 text-cyan-400 hover:underline">Lihat Dokumen</a>
-            <button class="mt-6 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-pengumuman-2')">Tutup</button>
+		<div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
+            <h2 id="judul-pengumuman-2" class="text-2xl font-bold mb-4 flex-shrink-0"></h2>
+            <div class="overflow-y-auto pr-2">
+                <img id="img-pengumuman-2" src="" class="w-full h-auto rounded-md my-4 hidden">
+                <p id="isi-pengumuman-2" class="text-gray-300 whitespace-pre-wrap"></p>
+                <a id="link-pengumuman-2" href="#" target="_blank" class="hidden mt-4 text-cyan-400 hover:underline">Lihat Dokumen</a>
+            </div>
+            <button class="mt-6 flex-shrink-0 w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-pengumuman-2')">Tutup</button>
         </div>
     </div>
 
-    <!-- Modal Pengumuman 3 -->
     <div id="modal-pengumuman-3" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
-        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-lg w-full p-6" onclick="event.stopPropagation()">
-            <h2 id="judul-pengumuman-3" class="text-2xl font-bold mb-2"></h2>
-            <img id="img-pengumuman-3" src="" class="w-full h-auto rounded-md my-4 hidden">
-            <p id="isi-pengumuman-3" class="text-gray-300 whitespace-pre-wrap"></p>
-            <a id="link-pengumuman-3" href="#" target="_blank" class="hidden mt-4 text-cyan-400 hover:underline">Lihat Dokumen</a>
-            <button class="mt-6 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-pengumuman-3')">Tutup</button>
+		<div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
+            <h2 id="judul-pengumuman-3" class="text-2xl font-bold mb-4 flex-shrink-0"></h2>
+            <div class="overflow-y-auto pr-2">
+                <img id="img-pengumuman-3" src="" class="w-full h-auto rounded-md my-4 hidden">
+                <p id="isi-pengumuman-3" class="text-gray-300 whitespace-pre-wrap"></p>
+                <a id="link-pengumuman-3" href="#" target="_blank" class="hidden mt-4 text-cyan-400 hover:underline">Lihat Dokumen</a>
+            </div>
+            <button class="mt-6 flex-shrink-0 w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-pengumuman-3')">Tutup</button>
         </div>
     </div>
     
-    <!-- Modal Kepala Sekolah -->
     <div id="modal-kepsek" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
          <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-2xl w-full p-6" onclick="event.stopPropagation()">
             <h2 id="nama-kepsek-modal" class="text-2xl font-bold mb-2"></h2>
@@ -256,13 +241,11 @@
         </div>
     </div>
     
-    <!-- Modal Edit Data Admin -->
     <div id="modal-edit" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
         <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-4xl w-full" onclick="event.stopPropagation()">
             <form id="edit-form" onsubmit="event.preventDefault(); handleSaveChanges();" class="w-full">
                 <h2 class="text-2xl font-bold p-6 border-b border-gray-700">Edit Data Portal</h2>
                 <div class="p-6 overflow-y-auto modal-body grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Kolom 1 -->
                     <div class="space-y-4">
                         <h3 class="text-lg font-semibold text-yellow-400">Informasi Sekolah</h3>
                         <div><label for="edit-nama-sekolah" class="text-sm">Nama Sekolah</label><input type="text" id="edit-nama-sekolah" class="w-full bg-gray-700 p-2 rounded mt-1"></div>
@@ -278,7 +261,6 @@
                         <div><label for="edit-facebook" class="text-sm">URL Facebook</label><input type="text" id="edit-facebook" class="w-full bg-gray-700 p-2 rounded mt-1"></div>
                         <div><label for="edit-instagram" class="text-sm">URL Instagram</label><input type="text" id="edit-instagram" class="w-full bg-gray-700 p-2 rounded mt-1"></div>
                     </div>
-                    <!-- Kolom 2 -->
                     <div class="space-y-4">
                         <h3 class="text-lg font-semibold text-yellow-400">Visi, Misi, Tujuan & Sambutan</h3>
                         <div><label for="edit-visi" class="text-sm">Visi</label><textarea id="edit-visi" class="w-full bg-gray-700 p-2 rounded mt-1" rows="3"></textarea></div>
@@ -318,10 +300,8 @@
         </div>
     </div>
 
-    <!-- SwiperJS JS -->
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 
-    <!-- Inisialisasi Swiper & Logika Modal -->
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygW-ntF-gzYfv_amlzu-XPzbgmQwIdEXA0a19xZoXW8J2Kom1iUcZbzglgOjeEC2KR/exec";
         let isAdminLoggedIn = false;
