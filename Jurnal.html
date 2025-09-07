@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jurnal & Data Siswa Guru</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(-45deg, #e0eafc, #cfdef3, #a7bfe8, #6dd5ed); background-size: 400% 400%; animation: gradientBG 15s ease infinite; overflow: hidden; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .glass-container { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2); transition: opacity 0.5s ease, transform 0.5s ease; }
+        .scrollable-content { max-height: 90vh; overflow-y: auto; }
+        .scrollable-content::-webkit-scrollbar { width: 8px; }
+        .scrollable-content::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        .scrollable-content::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
+        .scrollable-content::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.3); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .form-element, .adm-item-card { opacity: 0; animation: fadeIn 0.5s ease-out forwards; }
+        .modal-base { transition: opacity 0.3s ease-in-out; }
+        .modal-base .glass-container { transition: transform 0.3s ease-out; transform: scale(0.95); opacity: 0; }
+        .input-group { position: relative; }
+        .input-field { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 0.5rem; background-color: rgba(255, 255, 255, 0.5); transition: all 0.2s ease; }
+        .input-field:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        .input-field:disabled { background-color: #e5e7eb; color: #6b7280; cursor: not-allowed; }
+        .input-label { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6b7280; pointer-events: none; transition: all 0.2s ease; }
+        .input-field:focus + .input-label, .input-field:not(:placeholder-shown) + .input-label, .input-field:-webkit-autofill + .input-label { top: -10px; left: 10px; font-size: 0.75rem; padding: 0 4px; background-color: white; color: #3b82f6; }
+        .dpl-tag { cursor: pointer; padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; background-color: rgba(255, 255, 255, 0.6); transition: all 0.2s ease; text-align: center; font-size: 0.875rem; user-select: none; }
+        input[type="checkbox"].dpl-checkbox:checked + .dpl-tag { background-color: #3b82f6; color: white; border-color: #2563eb; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2); transform: scale(1.05); }
+        .submit-button { position: relative; overflow: hidden; transition: all 0.3s ease; }
+        .submit-button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3); }
+        .ripple { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.5); transform: scale(0); animation: ripple-animation 0.6s linear; }
+        @keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
+        .loader { width: 20px; height: 20px; border: 2px solid #fff; border-bottom-color: transparent; border-radius: 50%; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .rekap-table-container { max-height: 55vh; overflow-y: auto; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 8px; }
+        .rekap-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        .rekap-table th, .rekap-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.3); }
+        .rekap-table thead th { position: sticky; top: 0; z-index: 10; background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(5px); font-weight: 600; }
+        .rekap-table tbody tr:hover { background-color: rgba(255, 255, 255, 0.2); }
+        .view-more-cell { cursor: pointer; color: #3b82f6; text-decoration: underline; text-decoration-style: dotted; font-weight: 500; }
+        .view-more-cell:hover { color: #2563eb; }
+        /* Styles for Adm View */
+        .adm-item-card { background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 12px; padding: 1rem; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .adm-item-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .link-button { width: 40px; height: 40px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.7); color: #6b7280; transition: all 0.3s ease; }
+        .link-button:hover { background-color: #3b82f6; color: white; transform: scale(1.1); }
+        .link-button.has-link { background-color: #3b82f6; color: white; }
+        .status-icon { font-size: 2rem; }
+        [data-tooltip] { position: relative; cursor: help; }
+        [data-tooltip]::after { content: attr(data-tooltip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(-8px); background-color: #333; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; white-space: nowrap; opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; z-index: 10; }
+        [data-tooltip]:hover::after { opacity: 1; visibility: visible; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 p-4 hidden z-50">
+        <div class="w-full max-w-sm glass-container p-8" style="transform: scale(0.95); opacity: 0;">
+            <div class="text-center mb-6"><h1 class="text-2xl font-bold text-gray-800">Selamat Datang</h1><p class="text-gray-600 mt-1">Silakan login untuk melanjutkan</p></div>
+            <form id="loginForm" class="space-y-5">
+                <div class="input-group"><input type="text" id="username" class="input-field !pl-10" placeholder=" " required><label for="username" class="input-label !left-10">Username</label><i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i></div>
+                <div class="input-group"><input type="password" id="nip" class="input-field !pl-10" placeholder=" " required><label for="nip" class="input-label !left-10">NIP (Password)</label><i class="fas fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i></div>
+                <button type="submit" id="loginButton" class="w-full submit-button flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg"><span id="login-button-text">Login</span></button>
+            </form>
+            <div id="login-status" class="text-center mt-4 text-sm font-medium p-2 rounded-lg hidden"></div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="main-container" class="w-full md:w-[90%] max-w-screen-xl hidden">
+        
+        <!-- Jurnal View -->
+        <div id="jurnal-input-view" class="w-full glass-container p-6 md:p-10 relative scrollable-content">
+            <div class="text-center mb-4 form-element">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Jurnal Mengajar</h1>
+                <p id="welcome-text" class="text-gray-600 mt-2"></p>
+                <div class="flex justify-center items-center space-x-6 my-4 text-xl">
+                    <button id="adm-button" class="text-gray-600 hover:text-blue-600 transition-colors duration-300" title="Administrasi Kelas"><i class="fas fa-folder-open"></i></button>
+                    <button id="siswa-button" class="text-gray-600 hover:text-blue-600 transition-colors duration-300" title="Data Siswa"><i class="fas fa-users"></i></button>
+                    <button id="rekap-button" class="text-gray-600 hover:text-blue-600 transition-colors duration-300" title="Lihat Rekap"><i class="fas fa-list-alt"></i></button>
+					<a href="https://bangbin85.github.io/pm/Absensi.html" class="mt-auto w-full text-center bg-purple-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-purple-700 transition-colors">Absensi</a>
+					
+                    <button id="logoutButton" class="text-gray-600 hover:text-red-600 transition-colors duration-300" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </div>
+            <form id="jurnalForm" class="space-y-6">
+                <input type="hidden" name="action" value="submit">
+                <input type="hidden" name="sheetName" value="GURU">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="input-group form-element" style="animation-delay: 0.2s;"><input type="text" id="namaGuru" name="Nama Guru" class="input-field" placeholder=" " readonly><label for="namaGuru" class="input-label">Nama Guru</label></div>
+                    <div class="input-group form-element" style="animation-delay: 0.3s;"><input type="date" id="tanggal" name="Tanggal" class="input-field" required><label for="tanggal" class="input-label" style="background:none;top:50%"></label></div>
+                </div>
+                <div class="input-group form-element" style="animation-delay: 0.4s;"><input type="text" id="kelas" name="Kelas" class="input-field" placeholder=" " readonly><label for="kelas" class="input-label">Kelas yang Diajar</label></div>
+                <div class="form-element" style="animation-delay: 0.5s;"><label class="block text-sm font-medium text-gray-700 mb-3">Pilih DPL (Bisa lebih dari 1)</label><div id="dpl-container" class="grid grid-cols-4 md:grid-cols-8 gap-3"></div><input type="hidden" name="DPL" id="dpl-hidden-input"></div>
+                <div class="input-group form-element" style="animation-delay: 0.6s;"><textarea id="kegiatan" name="Kegiatan" rows="4" class="input-field" placeholder=" " required></textarea><label for="kegiatan" class="input-label">Kegiatan / Materi Pembelajaran</label></div>
+                <div class="form-element" style="animation-delay: 0.7s;"><label class="block text-sm font-medium text-gray-700 mb-2">Absensi Siswa</label><div class="grid grid-cols-3 gap-4 p-4 border border-gray-200 rounded-lg bg-white/50"><div class="text-center"><label for="sakit" class="block text-sm font-medium text-gray-700">S (Sakit)</label><input type="number" id="sakit" name="S" min="0" value="0" class="w-full mt-1 text-center py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"></div><div class="text-center"><label for="izin" class="block text-sm font-medium text-gray-700">I (Izin)</label><input type="number" id="izin" name="I" min="0" value="0" class="w-full mt-1 text-center py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"></div><div class="text-center"><label for="alfa" class="block text-sm font-medium text-gray-700">A (Alfa)</label><input type="number" id="alfa" name="A" min="0" value="0" class="w-full mt-1 text-center py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"></div></div></div>
+                <div class="input-group form-element" style="animation-delay: 0.8s;"><textarea id="kejadian" name="Kejadian" rows="3" class="input-field" placeholder=" "></textarea><label for="kejadian" class="input-label">Kejadian Khusus (Jika ada)</label></div>
+                <div class="input-group form-element" style="animation-delay: 0.9s;"><textarea id="keterangan" name="Keterangan" rows="3" class="input-field" placeholder=" "></textarea><label for="keterangan" class="input-label">Keterangan Tambahan</label></div>
+                <button type="submit" id="submitButton" class="w-full submit-button flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg focus:outline-none disabled:bg-gray-400 disabled:cursor-not-allowed form-element" style="animation-delay: 1.0s;"><span id="button-text">Kirim Laporan</span></button>
+            </form>
+            <div id="status" class="text-center mt-6 font-medium p-3 rounded-lg hidden"></div>
+        </div>
+
+        <!-- Rekap View -->
+        <div id="rekap-view" class="w-full glass-container p-6 md:p-10 relative hidden scrollable-content">
+            <button id="back-to-jurnal-button" class="absolute top-4 right-4 text-gray-500 hover:text-blue-500 z-10" title="Kembali ke Jurnal"><i class="fas fa-edit fa-lg"></i></button>
+            <div class="text-center mb-6"><h1 class="text-3xl md:text-4xl font-bold text-gray-800">Rekap Jurnal</h1><p id="rekap-guru-name" class="text-gray-600 mt-2"></p></div>
+            <div class="flex flex-wrap items-end justify-center gap-4 mb-6 bg-white/20 p-4 rounded-lg">
+                <div class="flex-grow"><label for="startDate" class="text-sm font-medium text-gray-700">Dari Tanggal</label><input type="date" id="startDate" class="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"></div>
+                <div class="flex-grow"><label for="endDate" class="text-sm font-medium text-gray-700">Sampai Tanggal</label><input type="date" id="endDate" class="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"></div>
+                <button id="filterButton" class="submit-button bg-blue-600 text-white font-bold py-2 px-5 rounded-lg w-full sm:w-auto">Filter</button>
+                <button id="printPdfButton" class="submit-button bg-red-600 text-white font-bold py-2 px-5 rounded-lg w-full sm:w-auto flex items-center justify-center gap-2"><i class="fas fa-file-pdf"></i> Cetak</button>
+            </div>
+            <div id="rekap-content"></div>
+        </div>
+
+        <!-- Siswa View -->
+        <div id="siswa-view" class="w-full glass-container p-6 md:p-10 relative hidden scrollable-content">
+            <button id="back-to-jurnal-from-siswa-button" class="absolute top-4 right-4 text-gray-500 hover:text-blue-500 z-10" title="Kembali ke Jurnal"><i class="fas fa-edit fa-lg"></i></button>
+            <div class="text-center mb-8"><h1 class="text-3xl md:text-4xl font-bold text-gray-800">Data Siswa</h1><p id="siswa-kelas-text" class="text-gray-600 mt-2"></p></div>
+            <form id="siswaForm" class="space-y-6">
+                <input type="hidden" name="action" value="editSiswaData">
+                <input type="hidden" name="sheetName" value="SISWA">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="input-group md:col-span-1"><input type="text" id="siswa-kelas" name="KELAS" class="input-field" placeholder=" " readonly><label for="siswa-kelas" class="input-label">Kelas</label></div>
+                    <div class="input-group"><input type="number" id="siswa-perempuan" name="PEREMPUAN" min="0" value="0" class="input-field" placeholder=" " required><label for="siswa-perempuan" class="input-label">Perempuan</label></div>
+                    <div class="input-group"><input type="number" id="siswa-laki-laki" name="LAKI-LAKI" min="0" value="0" class="input-field" placeholder=" " required><label for="siswa-laki-laki" class="input-label">Laki-laki</label></div>
+                    <div class="input-group"><input type="number" id="siswa-jml" name="JML" class="input-field" placeholder=" " readonly><label for="siswa-jml" class="input-label">Jumlah</label></div>
+                </div>
+                <div class="p-4 border border-gray-300 rounded-lg bg-white/30">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">Data Agama</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        <div class="input-group"><input type="number" name="ISLAM" min="0" value="0" class="input-field" placeholder=" "><label class="input-label">Islam</label></div>
+                        <div class="input-group"><input type="number" name="KRISTEN" min="0" value="0" class="input-field" placeholder=" "><label class="input-label">Kristen</label></div>
+                        <div class="input-group"><input type="number" name="KATHOLIK" min="0" value="0" class="input-field" placeholder=" "><label class="input-label">Katholik</label></div>
+                        <div class="input-group"><input type="number" name="HINDU" min="0" value="0" class="input-field" placeholder=" "><label class="input-label">Hindu</label></div>
+                        <div class="input-group"><input type="number" name="BUDHA" min="0" value="0" class="input-field" placeholder=" "><label class="input-label">Budha</label></div>
+                        <div class="input-group"><input type="number" name="KONGHUCU" min="0" value="0" class="input-field" placeholder=" "><label class="input-label">Konghucu</label></div>
+                        <div class="input-group md:col-span-3 lg:col-span-6"><input type="number" name="KEPERCAYAAN" min="0" value="0" class="input-field" placeholder=" "><label class="input-label">Kepercayaan</label></div>
+                    </div>
+                </div>
+                <div class="p-4 border border-gray-300 rounded-lg bg-white/30">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">Data Sosial</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="input-group"><input type="number" name="KJP" min="0" value="0" class="input-field" placeholder=" "><label class="input-label">Penerima KJP</label></div>
+                        <div class="input-group"><input type="number" name="YATIM" min="0" value="0" class="input-field" placeholder=" "><label class="input-label">Yatim</label></div>
+                        <div class="input-group"><input type="number" name="PIATU" min="0" value="0" class="input-field" placeholder=" "><label class="input-label">Piatu</label></div>
+                    </div>
+                </div>
+                <button type="submit" id="submitSiswaButton" class="w-full submit-button flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg"><span id="siswa-button-text">Update Data Siswa</span></button>
+            </form>
+            <div id="siswa-status" class="text-center mt-6 font-medium p-3 rounded-lg hidden"></div>
+        </div>
+        
+        <!-- Administrasi View -->
+        <div id="adm-view" class="w-full glass-container p-6 md:p-10 relative hidden scrollable-content">
+            <button id="back-to-jurnal-from-adm-button" class="absolute top-4 right-4 text-gray-500 hover:text-blue-500 z-10" title="Kembali ke Jurnal"><i class="fas fa-edit fa-lg"></i></button>
+            <div class="text-center mb-8"><h1 class="text-3xl md:text-4xl font-bold text-gray-800">Administrasi Kelas</h1><p id="adm-kelas-text" class="text-gray-600 mt-2"></p></div>
+            <form id="admForm" class="space-y-6">
+                <input type="hidden" name="action" value="editAdmData">
+                <input type="hidden" name="sheetName" value="ADM">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 form-element">
+                    <div class="input-group"><input type="text" id="adm-kelas" name="KELAS" class="input-field" placeholder=" " readonly><label for="adm-kelas" class="input-label">Kelas</label></div>
+                    <div class="input-group"><input type="text" name="SMT" class="input-field" placeholder=" "><label class="input-label">Semester</label></div>
+                </div>
+
+                <div id="adm-items-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Cards will be generated by JS here -->
+
+                    <!-- Static Supervisi Card -->
+                    <div class="adm-item-card md:col-span-2 lg:col-span-3" data-item="SUPERVISI" style="animation-delay: 600ms;">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">Supervisi Kelas</h3>
+                            <div class="flex items-center space-x-4">
+                                <div class="status-icon-container">
+                                    <i class="fas fa-hourglass-start text-gray-400 status-icon" data-tooltip="Menunggu verifikasi"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="input-group lg:col-span-1">
+                                <input type="date" name="SUPERVISI_TANGGAL" class="input-field">
+                                <label class="input-label" style="background:none;top:50%"></label>
+                            </div>
+                            <div class="flex items-center justify-around bg-white/30 rounded-lg p-2">
+                                <div class="text-center">
+                                    <button type="button" class="link-button flex items-center justify-center mx-auto" data-item="SUPERVISI_RPP_LINK" title="Link RPP">
+                                        <i class="fas fa-file-alt"></i>
+                                    </button>
+                                    <span class="text-xs text-gray-600 mt-1 block">RPP</span>
+                                </div>
+                                <div class="text-center">
+                                    <button type="button" class="link-button flex items-center justify-center mx-auto" data-item="SUPERVISI_DOKUMENTASI_LINK" title="Link Dokumentasi">
+                                        <i class="fas fa-camera"></i>
+                                    </button>
+                                    <span class="text-xs text-gray-600 mt-1 block">Foto</span>
+                                </div>
+                            </div>
+                            <div class="input-group lg:col-span-1">
+                                <input type="text" name="SUPERVISI_NILAI" class="input-field" placeholder=" " disabled>
+                                <label class="input-label">Nilai (dari Admin)</label>
+                            </div>
+                            <div class="lg:col-span-3 input-group">
+                                <textarea name="SUPERVISI_KOMENTAR" rows="2" class="input-field" placeholder=" " disabled></textarea>
+                                <label class="input-label">Komentar (dari Admin)</label>
+                            </div>
+                        </div>
+                        <!-- Hidden inputs for form data -->
+                        <input type="hidden" name="SUPERVISI_RPP_LINK">
+                        <input type="hidden" name="SUPERVISI_DOKUMENTASI_LINK">
+                        <select name="SUPERVISI_STATUS" class="hidden">
+                            <option value=""></option>
+                            <option value="Disetujui">Disetujui</option>
+                            <option value="Diperbaiki">Diperbaiki</option>
+                            <option value="Ditolak">Ditolak</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit" id="submitAdmButton" class="w-full submit-button flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg form-element" style="animation-delay: 1s;"><span id="adm-button-text">Simpan Perubahan</span></button>
+            </form>
+            <div id="adm-status" class="text-center mt-6 font-medium p-3 rounded-lg hidden"></div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="full-text-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden modal-base z-50">
+        <div class="glass-container w-full md:w-[90%] max-w-screen-xl h-full max-h-[90vh] flex flex-col p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="modal-title" class="text-2xl font-bold text-gray-800">Detail Lengkap</h2>
+                <button id="modal-close-button" class="text-gray-600 hover:text-red-500"><i class="fas fa-times fa-2x"></i></button>
+            </div>
+            <div id="modal-content" class="flex-grow bg-white/50 p-4 rounded-lg overflow-y-auto text-gray-700 whitespace-pre-wrap"></div>
+        </div>
+    </div>
+    
+    <!-- Link Input Modal -->
+    <div id="link-input-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden modal-base z-50">
+        <div class="glass-container w-full max-w-lg p-6" style="transform: scale(0.95); opacity: 0;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="link-modal-title" class="text-2xl font-bold text-gray-800">Masukkan Link</h2>
+                <button id="link-modal-close-button" class="text-gray-600 hover:text-red-500"><i class="fas fa-times fa-lg"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div class="input-group">
+                    <input type="url" id="link-input-field" class="input-field" placeholder=" ">
+                    <label for="link-input-field" class="input-label">URL / Tautan</label>
+                </div>
+                <button id="save-link-button" class="w-full submit-button flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg">Simpan Link</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbygW-ntF-gzYfv_amlzu-XPzbgmQwIdEXA0a19xZoXW8J2Kom1iUcZbzglgOjeEC2KR/exec';
+        let schoolData = {}, currentRekapData = [];
+
+        const mainContainer = document.getElementById('main-container'), jurnalInputView = document.getElementById('jurnal-input-view'), rekapView = document.getElementById('rekap-view'), siswaView = document.getElementById('siswa-view'), admView = document.getElementById('adm-view');
+        const jurnalForm = document.getElementById('jurnalForm'), submitButton = document.getElementById('submitButton'), buttonText = document.getElementById('button-text'), statusDiv = document.getElementById('status'), logoutButton = document.getElementById('logoutButton');
+        const rekapButton = document.getElementById('rekap-button'), backToJurnalButton = document.getElementById('back-to-jurnal-button'), filterButton = document.getElementById('filterButton'), printPdfButton = document.getElementById('printPdfButton');
+        const loginModal = document.getElementById('login-modal'), loginForm = document.getElementById('loginForm'), loginButton = document.getElementById('loginButton'), loginButtonText = document.getElementById('login-button-text'), loginStatus = document.getElementById('login-status');
+        const welcomeText = document.getElementById('welcome-text'), rekapGuruName = document.getElementById('rekap-guru-name'), rekapContent = document.getElementById('rekap-content');
+        const fullTextModal = document.getElementById('full-text-modal'), modalTitle = document.getElementById('modal-title'), modalContent = document.getElementById('modal-content'), modalCloseButton = document.getElementById('modal-close-button');
+        const siswaButton = document.getElementById('siswa-button'), backToJurnalFromSiswaButton = document.getElementById('back-to-jurnal-from-siswa-button'), siswaForm = document.getElementById('siswaForm'), siswaStatusDiv = document.getElementById('siswa-status');
+        const submitSiswaButton = document.getElementById('submitSiswaButton'), siswaButtonText = document.getElementById('siswa-button-text');
+        const pInput = document.getElementById('siswa-perempuan'), lInput = document.getElementById('siswa-laki-laki'), jmlInput = document.getElementById('siswa-jml');
+        const admButton = document.getElementById('adm-button'), backToJurnalFromAdmButton = document.getElementById('back-to-jurnal-from-adm-button'), admForm = document.getElementById('admForm'), admStatusDiv = document.getElementById('adm-status'), submitAdmButton = document.getElementById('submitAdmButton'), admButtonText = document.getElementById('adm-button-text');
+        const linkInputModal = document.getElementById('link-input-modal'), linkModalTitle = document.getElementById('link-modal-title'), linkInputField = document.getElementById('link-input-field'), saveLinkButton = document.getElementById('save-link-button'), linkModalCloseButton = document.getElementById('link-modal-close-button');
+        let currentLinkTargetInput = null;
+
+        const getLocalDateString = d => new Date(d.getTime()-(d.getTimezoneOffset()*60000)).toISOString().split('T')[0];
+        const setTodayDate = () => { if(document.getElementById('tanggal')) document.getElementById('tanggal').value = getLocalDateString(new Date()); };
+        const setDefaultDateFilters = () => {
+            const endDateInput = document.getElementById('endDate'), startDateInput = document.getElementById('startDate');
+            if (!endDateInput || !startDateInput) return;
+            const today = new Date();
+            endDateInput.value = getLocalDateString(today);
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            startDateInput.value = getLocalDateString(thirtyDaysAgo);
+        };
+        const showStatusMessage = (message, type = 'success', location = 'jurnal') => {
+            let div;
+            if (location === 'siswa') div = siswaStatusDiv;
+            else if (location === 'adm') div = admStatusDiv;
+            else div = statusDiv;
+            div.className = `text-center font-medium p-3 rounded-lg status-visible ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} mt-6`;
+            div.textContent = message;
+            setTimeout(() => div.className = 'hidden', 5000);
+        };
+        const showView = v => { [jurnalInputView, rekapView, siswaView, admView].forEach(view => view.classList.add('hidden')); if(v) v.classList.remove('hidden'); };
+        const showLogin = () => {
+            mainContainer.classList.add('hidden');
+            loginModal.classList.remove('hidden');
+            setTimeout(() => {
+                loginModal.style.opacity = '1';
+                loginModal.querySelector('.glass-container').style.transform = 'scale(1)';
+                loginModal.querySelector('.glass-container').style.opacity = '1';
+            }, 50);
+        };
+        const showMainApp = (user) => {
+            document.getElementById('namaGuru').value = user['Nama Guru'];
+            document.getElementById('kelas').value = user['Kelas'];
+            welcomeText.textContent = `Laporan Harian untuk ${user['Nama Guru']}`;
+            rekapGuruName.textContent = `Menampilkan Jurnal Milik: ${user['Nama Guru']}`;
+            document.getElementById('siswa-kelas').value = user['Kelas'];
+            document.getElementById('siswa-kelas-text').textContent = `Mengelola data untuk Kelas ${user['Kelas']}`;
+            document.getElementById('adm-kelas').value = user['Kelas'];
+            document.getElementById('adm-kelas-text').textContent = `Kelola data administrasi untuk Kelas ${user['Kelas']}`;
+            fetchSchoolData();
+            loginModal.style.opacity='0';
+            setTimeout(() => { 
+                loginModal.classList.add('hidden'); 
+                mainContainer.classList.remove('hidden'); 
+                showView(jurnalInputView); 
+            }, 300);
+        };
+
+        const fetchSchoolData = () => {
+            fetch(`${SCRIPT_URL}?action=getSchoolData`).then(r => r.json()).then(res => { 
+                if (res.success) { schoolData = res.data; } 
+                else { console.error("Gagal mengambil data sekolah:", res.message); }
+            }).catch(err => console.error("Error fetching school data:", err));
+        };
+        
+        const fetchAndDisplayRekap = () => {
+            const user = JSON.parse(sessionStorage.getItem('userData'));
+            if (!user) return;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            rekapContent.innerHTML = '<div class="flex justify-center items-center p-8"><div class="loader !border-blue-500 !border-b-transparent !w-12 !h-12"></div></div>';
+            const url = new URL(SCRIPT_URL);
+            url.searchParams.append('action', 'getRekap');
+            url.searchParams.append('namaGuru', user['Nama Guru']);
+            if (startDate) url.searchParams.append('startDate', startDate);
+            if (endDate) url.searchParams.append('endDate', endDate);
+            fetch(url).then(r => r.json()).then(res => { 
+                if (res.success && res.data) { currentRekapData = res.data; renderRekapTable(res.data); } 
+                else { throw new Error(res.message || "Gagal memuat data rekap."); } 
+            }).catch(err => { rekapContent.innerHTML = `<div class="text-center p-8 text-red-700 bg-red-100 rounded-lg">${err.message}</div>`; });
+        };
+        
+        const renderRekapTable = (data) => {
+            if (data.length === 0) {
+                currentRekapData = [];
+                rekapContent.innerHTML = '<div class="text-center p-8 text-gray-600">Tidak ada data jurnal ditemukan.</div>';
+                return;
+            }
+            const headers = ['Tanggal', 'Kegiatan', 'DPL', 'S', 'I', 'A', 'Kejadian', 'Keterangan'];
+            const longTextCols = ['Kegiatan', 'Kejadian', 'Keterangan'];
+            let tableHTML = '<div class="rekap-table-container"><table class="rekap-table"><thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
+            data.forEach(row => {
+                tableHTML += '<tr>';
+                headers.forEach(col => {
+                    let cell = row[col] || '-';
+                    if (col === 'Tanggal') cell = new Date(row[col]).toLocaleDateString('id-ID', {day: '2-digit', month: 'long', year: 'numeric'});
+                    if (longTextCols.includes(col) && cell.length > 50) {
+                        tableHTML += `<td class="view-more-cell" data-fulltext="${escape(cell)}" data-title="${col}">${cell.substring(0, 50)}...</td>`;
+                    } else {
+                        tableHTML += `<td>${cell}</td>`;
+                    }
+                });
+                tableHTML += '</tr>';
+            });
+            tableHTML += '</tbody></table></div>';
+            rekapContent.innerHTML = tableHTML;
+        };
+        
+        const generatePdf = () => {
+            if (currentRekapData.length === 0) { return; } // Removed alert
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+            const user = JSON.parse(sessionStorage.getItem('userData'));
+            const pageWidth = doc.internal.pageSize.getWidth(), margin = 15;
+
+            if (schoolData.Logo) { try { doc.addImage(schoolData.Logo, 'PNG', margin, 10, 20, 20); } catch(e) { console.error("Error adding logo:", e); } }
+            doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.text(schoolData['Nama Sekolah'] || 'NAMA SEKOLAH', pageWidth / 2, 18, { align: 'center' });
+            doc.setFontSize(14); doc.setFont('helvetica', 'normal'); doc.text(`JURNAL GURU ${user['Kelas'] || '-'}`, pageWidth / 2, 24, { align: 'center' });
+            doc.setLineWidth(0.5); doc.line(margin, 32, pageWidth - margin, 32);
+
+            const tableHeaders = [['Tanggal', 'Kegiatan', 'DPL', 'S', 'I', 'A', 'Kejadian', 'Keterangan']];
+            const tableBody = currentRekapData.map(row => [ new Date(row['Tanggal']).toLocaleDateString('id-ID'), row['Kegiatan'] || '-', row['DPL'] || '-', row['S'] || '', row['I'] || '', row['A'] || '', row['Kejadian'] || '-', row['Keterangan'] || '-' ]);
+            doc.autoTable({ head: tableHeaders, body: tableBody, startY: 35, theme: 'grid', headStyles: { fillColor: [22, 160, 133], textColor: [255,255,255], fontStyle: 'bold' } });
+
+            let finalY = doc.autoTable.previous.finalY; if (finalY > doc.internal.pageSize.getHeight() - 50) { doc.addPage(); finalY = 0; }
+            const signatureY = finalY + 15;
+            const formattedDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.text(`Jakarta, ${formattedDate}`, pageWidth - margin, signatureY, { align: 'right' });
+            const signatureBlockY = signatureY + 8;
+            doc.text("Mengetahui,", margin, signatureBlockY); doc.text("Kepala Sekolah", margin, signatureBlockY + 5);
+            doc.setFont('helvetica', 'bold'); doc.text(schoolData['Nama Kepala Sekolah'] || 'Nama Kepsek', margin, signatureBlockY + 25);
+            doc.setFont('helvetica', 'normal'); doc.text(`NIP. ${schoolData['NIP Kepala Sekolah'] || '-'}`, margin, signatureBlockY + 30);
+            doc.text("Guru", pageWidth - margin, signatureBlockY + 5, { align: 'right' });
+            doc.setFont('helvetica', 'bold'); doc.text(user['Nama Guru'], pageWidth - margin, signatureBlockY + 25, { align: 'right' });
+            doc.setFont('helvetica', 'normal'); doc.text(`NIP. ${user['NIP'] || '-'}`, pageWidth - margin, signatureBlockY + 30, { align: 'right' });
+            doc.save(`Rekap Jurnal - ${user['Nama Guru']}.pdf`);
+        };
+        
+        const showFullTextModal = (title, content) => {
+            modalTitle.textContent = `Detail: ${title}`;
+            modalContent.textContent = unescape(content);
+            fullTextModal.classList.remove('hidden');
+            setTimeout(() => {
+                fullTextModal.style.opacity = '1';
+                fullTextModal.querySelector('.glass-container').style.transform = 'scale(1)';
+                fullTextModal.querySelector('.glass-container').style.opacity = '1';
+            }, 10);
+        };
+        const hideFullTextModal = () => {
+            fullTextModal.style.opacity = '0';
+            fullTextModal.querySelector('.glass-container').style.transform = 'scale(0.95)';
+            fullTextModal.querySelector('.glass-container').style.opacity = '0';
+            setTimeout(() => { fullTextModal.classList.add('hidden'); }, 300);
+        };
+
+        const fetchAndDisplaySiswaData = () => {
+            const user = JSON.parse(sessionStorage.getItem('userData'));
+            if (!user || !user.Kelas) return;
+            showStatusMessage('Memuat data siswa...', 'success', 'siswa');
+            const url = new URL(SCRIPT_URL);
+            url.searchParams.append('action', 'getSiswaData');
+            url.searchParams.append('kelas', user.Kelas);
+            fetch(url).then(r => r.json()).then(res => {
+                if(res.success && res.data) {
+                    Object.keys(res.data).forEach(key => {
+                        const input = siswaForm.querySelector(`[name="${key}"]`);
+                        if (input) input.value = res.data[key] || 0;
+                    });
+                } else {
+                    console.warn(res.message || 'Data siswa untuk kelas ini belum ada.');
+                    siswaForm.reset();
+                    document.getElementById('siswa-kelas').value = user.Kelas;
+                }
+                calculateTotalSiswa();
+            }).catch(err => {
+                showStatusMessage(`Gagal memuat data siswa: ${err.message}`, 'error', 'siswa');
+            });
+        };
+        const calculateTotalSiswa = () => {
+            const p = parseInt(pInput.value) || 0;
+            const l = parseInt(lInput.value) || 0;
+            jmlInput.value = p + l;
+        };
+
+        const fetchAndDisplayAdmData = () => {
+            const user = JSON.parse(sessionStorage.getItem('userData'));
+            if (!user || !user.Kelas) return;
+            showStatusMessage('Memuat data administrasi...', 'success', 'adm');
+            const url = new URL(SCRIPT_URL);
+            url.searchParams.append('action', 'getAdmData');
+            url.searchParams.append('kelas', user.Kelas);
+            fetch(url).then(r => r.json()).then(res => {
+                admForm.reset(); 
+                document.getElementById('adm-kelas').value = user.Kelas;
+
+                if (res.success && res.data) {
+                    Object.keys(res.data).forEach(key => {
+                        const input = admForm.querySelector(`[name="${key}"]`);
+                        if (input) input.value = res.data[key] || '';
+                    });
+                } else {
+                    console.warn(res.message || 'Data ADM untuk kelas ini belum ada.');
+                }
+                
+                document.querySelectorAll('.adm-item-card[data-item]').forEach(card => {
+                    const item = card.dataset.item;
+                    if (item === 'SUPERVISI') {
+                         updateSupervisiUI();
+                    } else {
+                         updateAdmItemUI(item);
+                    }
+                });
+
+            }).catch(err => {
+                showStatusMessage(`Gagal memuat data administrasi: ${err.message}`, 'error', 'adm');
+            });
+        };
+        
+        const updateAdmItemUI = (item) => {
+            const linkInput = admForm.querySelector(`[name="${item}_LINK"]`);
+            const statusSelect = admForm.querySelector(`[name="${item}_STATUS"]`);
+            const card = document.querySelector(`.adm-item-card[data-item="${item}"]`);
+            if (!card || !statusSelect) return;
+
+            const linkButton = card.querySelector('.link-button');
+            if (linkInput && linkButton) {
+                if (linkInput.value) linkButton.classList.add('has-link');
+                else linkButton.classList.remove('has-link');
+            }
+
+            const statusContainer = card.querySelector('.status-icon-container');
+            const status = statusSelect.value;
+            let iconHTML = '';
+            const statusMap = {
+                'Disetujui': { icon: 'fa-check-circle', color: 'text-green-500', tooltip: 'Disetujui' },
+                'Diperbaiki': { icon: 'fa-question-circle', color: 'text-yellow-500', tooltip: 'Perlu Perbaikan' },
+                'Ditolak': { icon: 'fa-times-circle', color: 'text-red-500', tooltip: 'Ditolak' },
+            };
+            if(status && statusMap[status]){
+                const s = statusMap[status];
+                iconHTML = `<i class="fas ${s.icon} ${s.color} status-icon" data-tooltip="${s.tooltip}"></i>`;
+            } else {
+                iconHTML = `<i class="fas fa-hourglass-start text-gray-400 status-icon" data-tooltip="Menunggu verifikasi"></i>`;
+            }
+            statusContainer.innerHTML = iconHTML;
+        };
+        
+        const updateSupervisiUI = () => {
+            const card = document.querySelector('.adm-item-card[data-item="SUPERVISI"]');
+            if (!card) return;
+
+            ['SUPERVISI_RPP_LINK', 'SUPERVISI_DOKUMENTASI_LINK'].forEach(itemName => {
+                const linkInput = admForm.querySelector(`[name="${itemName}"]`);
+                const linkButton = card.querySelector(`[data-item="${itemName}"]`);
+                if (linkInput && linkButton) {
+                    if (linkInput.value) linkButton.classList.add('has-link');
+                    else linkButton.classList.remove('has-link');
+                }
+            });
+            updateAdmItemUI('SUPERVISI'); // Re-use the status icon logic
+        };
+
+        const openLinkModal = (inputName) => {
+            currentLinkTargetInput = admForm.querySelector(`[name="${inputName}"]`);
+            if (!currentLinkTargetInput) return;
+            
+            const title = document.querySelector(`[data-item="${inputName}"]`)?.title || 'Tautan';
+            linkModalTitle.textContent = `Masukkan ${title}`;
+            linkInputField.value = currentLinkTargetInput.value;
+            
+            linkInputModal.classList.remove('hidden');
+            setTimeout(() => {
+                linkInputModal.style.opacity = '1';
+                linkInputModal.querySelector('.glass-container').style.transform = 'scale(1)';
+                linkInputModal.querySelector('.glass-container').style.opacity = '1';
+                linkInputField.focus();
+            }, 10);
+        };
+        
+        const closeLinkModal = () => {
+            linkInputModal.style.opacity = '0';
+            linkInputModal.querySelector('.glass-container').style.transform = 'scale(0.95)';
+            linkInputModal.querySelector('.glass-container').style.opacity = '0';
+            setTimeout(() => { linkInputModal.classList.add('hidden'); }, 300);
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setTodayDate();
+            setDefaultDateFilters();
+            
+            const dplContainer = document.getElementById('dpl-container');
+            for (let i = 1; i <= 8; i++) {
+                const dpl = `DPL${i}`;
+                dplContainer.insertAdjacentHTML('beforeend', `<div class="relative"><input type="checkbox" id="${dpl}" value="${dpl}" class="dpl-checkbox hidden peer"><label for="${dpl}" class="dpl-tag">${dpl}</label></div>`);
+            }
+            
+            const admItemsContainer = document.getElementById('adm-items-container');
+            const items = ['RPP', 'PROGRAM', 'SILABUS', 'BANK_SOAL', 'ADM_KELAS', 'EKSTRAKURIKULER'];
+            items.forEach((item, index) => {
+                const itemHTML = `
+                <div class="adm-item-card" data-item="${item}" style="animation-delay: ${index * 100}ms;">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-gray-800">${item.replace('_', ' ')}</h3>
+                        <div class="flex items-center space-x-4">
+                            <button type="button" class="link-button flex items-center justify-center" data-item="${item}_LINK" title="Link ${item.replace('_', ' ')}">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <div class="status-icon-container">
+                                <i class="fas fa-hourglass-start text-gray-400 status-icon" data-tooltip="Menunggu verifikasi"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <textarea name="${item}_KOMENTAR" rows="2" class="input-field" placeholder=" " disabled></textarea>
+                        <label class="input-label">Komentar (dari Admin)</label>
+                    </div>
+                    <input type="hidden" name="${item}_LINK">
+                    <select name="${item}_STATUS" class="hidden">
+                        <option value=""></option><option value="Disetujui">Disetujui</option><option value="Diperbaiki">Diperbaiki</option><option value="Ditolak">Ditolak</option>
+                    </select>
+                </div>`;
+                admItemsContainer.insertAdjacentHTML('beforeend', itemHTML);
+            });
+
+            document.querySelectorAll('.submit-button').forEach(b => {
+                b.addEventListener('click', function(e){ if(this.disabled)return; const r=this.getBoundingClientRect(), s=document.createElement('span'); s.classList.add('ripple'); s.style.left=`${e.clientX-r.left}px`; s.style.top=`${e.clientY-r.top}px`; this.appendChild(s); setTimeout(()=>s.remove(),600) });
+            });
+            const storedUser = sessionStorage.getItem('userData');
+            if (storedUser) { showMainApp(JSON.parse(storedUser)); } 
+            else { showLogin(); }
+        });
+
+        loginForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const nip = document.getElementById('nip').value;
+            loginButton.disabled = true; loginButtonText.innerHTML = `<div class="loader"></div>`; loginStatus.className = 'hidden';
+            fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(username)}&nip=${encodeURIComponent(nip)}`).then(r=>r.json()).then(d=>{if(d.success){sessionStorage.setItem('userData',JSON.stringify(d.user));showMainApp(d.user)}else{throw new Error(d.message||'Username atau NIP salah.')}}).catch(err=>{loginStatus.className='text-center mt-4 text-sm font-medium p-2 rounded-lg bg-red-100 text-red-800 block';loginStatus.textContent=err.message}).finally(()=>{loginButton.disabled=false;loginButtonText.textContent='Login'});
+        });
+
+        jurnalForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const selectedDPLs = Array.from(document.querySelectorAll('.dpl-checkbox:checked')).map(cb => cb.value);
+            document.getElementById('dpl-hidden-input').value = selectedDPLs.join(', ');
+            submitButton.disabled = true; buttonText.innerHTML = `<div class="loader"></div>`; statusDiv.className = 'hidden';
+            fetch(SCRIPT_URL, { method: 'POST', body: new FormData(jurnalForm)})
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        showStatusMessage('✅ Laporan Anda berhasil terkirim!');
+                        jurnalForm.reset();
+                        document.querySelectorAll('.dpl-checkbox:checked').forEach(c => c.checked = false);
+                        const user = JSON.parse(sessionStorage.getItem('userData'));
+                        document.getElementById('namaGuru').value = user['Nama Guru'];
+                        document.getElementById('kelas').value = user['Kelas'];
+                        setTodayDate();
+                    } else { throw new Error(d.message || 'Unknown error'); }
+                })
+                .catch(err => { showStatusMessage(`❌ Terjadi kesalahan! ${err.message}`, 'error'); })
+                .finally(() => { submitButton.disabled = false; buttonText.textContent = 'Kirim Laporan'; });
+        });
+        
+        logoutButton.addEventListener('click', () => { sessionStorage.removeItem('userData'); loginForm.reset(); loginStatus.className='hidden'; showLogin(); });
+        rekapButton.addEventListener('click', () => { showView(rekapView); fetchAndDisplayRekap(); });
+        backToJurnalButton.addEventListener('click', () => showView(jurnalInputView));
+        filterButton.addEventListener('click', fetchAndDisplayRekap);
+        printPdfButton.addEventListener('click', generatePdf);
+        modalCloseButton.addEventListener('click', hideFullTextModal);
+        fullTextModal.addEventListener('click', e => { if (e.target === fullTextModal) hideFullTextModal(); });
+        rekapContent.addEventListener('click', e => { const cell = e.target.closest('.view-more-cell'); if (cell) { showFullTextModal(cell.dataset.title, cell.dataset.fulltext); } });
+        
+        siswaButton.addEventListener('click', () => { showView(siswaView); fetchAndDisplaySiswaData(); });
+        backToJurnalFromSiswaButton.addEventListener('click', () => showView(jurnalInputView));
+        pInput.addEventListener('input', calculateTotalSiswa);
+        lInput.addEventListener('input', calculateTotalSiswa);
+
+        siswaForm.addEventListener('submit', e => {
+            e.preventDefault();
+            submitSiswaButton.disabled = true; siswaButtonText.innerHTML = `<div class="loader"></div>`; siswaStatusDiv.className = 'hidden';
+            fetch(SCRIPT_URL, { method: 'POST', body: new FormData(siswaForm) })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) { showStatusMessage('✅ Data siswa berhasil diperbarui!', 'success', 'siswa'); } 
+                    else { throw new Error(data.message || 'Kesalahan tidak diketahui'); }
+                })
+                .catch(err => { showStatusMessage(`❌ Gagal memperbarui: ${err.message}`, 'error', 'siswa'); })
+                .finally(() => { submitSiswaButton.disabled = false; siswaButtonText.textContent = 'Update Data Siswa'; });
+        });
+
+        admButton.addEventListener('click', () => { showView(admView); fetchAndDisplayAdmData(); });
+        backToJurnalFromAdmButton.addEventListener('click', () => showView(jurnalInputView));
+        
+        admForm.addEventListener('submit', e => {
+            e.preventDefault();
+            submitAdmButton.disabled = true; admButtonText.innerHTML = `<div class="loader"></div>`; admStatusDiv.className = 'hidden';
+            fetch(SCRIPT_URL, { method: 'POST', body: new FormData(admForm) })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) { showStatusMessage('✅ Data administrasi berhasil disimpan!', 'success', 'adm'); } 
+                    else { throw new Error(data.message || 'Kesalahan tidak diketahui'); }
+                })
+                .catch(err => { showStatusMessage(`❌ Gagal menyimpan: ${err.message}`, 'error', 'adm'); })
+                .finally(() => { submitAdmButton.disabled = false; admButtonText.textContent = 'Simpan Perubahan'; });
+        });
+
+        document.getElementById('adm-items-container').addEventListener('click', (e) => {
+            const button = e.target.closest('.link-button');
+            if (button) {
+                openLinkModal(button.dataset.item);
+            }
+        });
+        saveLinkButton.addEventListener('click', () => {
+            if (currentLinkTargetInput) {
+                currentLinkTargetInput.value = linkInputField.value;
+                const itemName = currentLinkTargetInput.name.replace('_LINK', '');
+                const itemType = itemName.startsWith('SUPERVISI') ? 'SUPERVISI' : itemName;
+
+                if (itemType === 'SUPERVISI') {
+                    updateSupervisiUI();
+                } else {
+                    updateAdmItemUI(itemType);
+                }
+                closeLinkModal();
+            }
+        });
+        linkModalCloseButton.addEventListener('click', closeLinkModal);
+        linkInputModal.addEventListener('click', e => { if (e.target === linkInputModal) closeLinkModal(); });
+
+        const style = document.createElement('style');
+        style.innerHTML = `@keyframes slideInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.status-visible{display:block!important;animation:slideInUp .5s ease-out forwards}`;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Piket Harian</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(-45deg, #e0eafc, #cfdef3, #a7bfe8, #6dd5ed); background-size: 400% 400%; animation: gradientBG 15s ease infinite; overflow-x: hidden; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .glass-container { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(15px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2); transition: opacity 0.5s ease, transform 0.5s ease; }
+        .main-content-area { max-height: 90vh; overflow-y: auto; }
+        .main-content-area::-webkit-scrollbar{width:8px} .main-content-area::-webkit-scrollbar-track{background:rgba(255,255,255,0.1);border-radius:10px} .main-content-area::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.2);border-radius:10px} .main-content-area::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,0.3)}
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .form-element { opacity: 0; animation: fadeIn 0.6s ease-out forwards; }
+        .input-group{position:relative} .input-field{width:100%;padding:12px 12px 12px 40px;border:1px solid #d1d5db;border-radius:.5rem;background-color:rgba(255,255,255,.5);transition:all .2s ease} .input-field:focus{outline:0;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.2)} .input-label{position:absolute;left:40px;top:50%;transform:translateY(-50%);color:#6b7280;pointer-events:none;transition:all .2s ease} .input-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#6b7280;transition:color .2s ease} .input-field:focus+.input-label,.input-field:not(:placeholder-shown)+.input-label,.input-field:-webkit-autofill+.input-label{top:-10px;left:10px;font-size:.75rem;padding:0 4px;background-color:#fff;color:#3b82f6} .input-field:focus~.input-icon{color:#3b82f6} textarea.input-field{padding:12px} textarea.input-field~.input-label{left:12px}
+        .submit-button{position:relative;overflow:hidden;transition:all .3s ease} .submit-button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 25px rgba(59,130,246,.3)} .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.5);transform:scale(0);animation:ripple-animation .6s linear} @keyframes ripple-animation{to{transform:scale(4);opacity:0}}
+        .loader{width:20px;height:20px;border:2px solid #fff;border-bottom-color:transparent;border-radius:50%;display:inline-block;box-sizing:border-box;animation:rotation 1s linear infinite} @keyframes rotation{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+        .rekap-table-container { max-height: 55vh; overflow-y: auto; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 8px; }
+        .rekap-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        .rekap-table th, .rekap-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.3); }
+        .rekap-table thead th { position: sticky; top: 0; z-index: 10; background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(5px); font-weight: 600; }
+        .rekap-table tbody tr:hover { background-color: rgba(255, 255, 255, 0.2); }
+        .view-more-cell { cursor: pointer; color: #3b82f6; text-decoration: underline; text-decoration-style: dotted; font-weight: 500; }
+        .view-more-cell:hover { color: #2563eb; }
+        .action-btn { background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: all 0.2s; }
+        .action-btn.edit:hover { background-color: rgba(59, 130, 246, 0.2); color: #2563eb; }
+        .action-btn.delete:hover { background-color: rgba(239, 68, 68, 0.2); color: #dc2626; }
+        .modal-base .glass-container { transition: transform 0.3s ease-out; transform: scale(0.95); opacity: 0; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div id="login-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 p-4 hidden">
+        <div class="w-full max-w-sm glass-container p-8" style="transform: scale(0.95); opacity: 0;">
+            <div class="text-center mb-6"><h1 class="text-2xl font-bold text-gray-800">Selamat Datang</h1><p class="text-gray-600 mt-1">Silakan login untuk melanjutkan</p></div>
+            <form id="loginForm" class="space-y-5">
+                <div class="input-group"><input type="text" id="username" class="input-field" placeholder=" " required><label for="username" class="input-label">Username</label><div class="input-icon"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg></div></div>
+                <div class="input-group"><input type="password" id="nip" class="input-field" placeholder=" " required><label for="nip" class="input-label">NIP (Password)</label><div class="input-icon"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" /></svg></div></div>
+                <button type="submit" id="loginButton" class="w-full submit-button flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg focus:outline-none disabled:bg-gray-400"><span id="login-button-text">Login</span></button>
+            </form>
+            <div id="login-status" class="text-center mt-4 text-sm font-medium p-2 rounded-lg hidden"></div>
+        </div>
+    </div>
+
+    <div id="main-container" class="w-full max-w-screen-xl hidden">
+        <div id="piket-input-view" class="w-full glass-container p-6 md:p-10 relative main-content-area">
+            <div class="absolute top-4 right-4 flex items-center space-x-2 z-10">
+                <button id="rekap-button" class="text-gray-500 hover:text-blue-500 transition-colors" title="Lihat Rekap"><i class="fas fa-list-alt fa-lg"></i></button>
+                <button id="logoutButton" class="text-gray-500 hover:text-red-500 transition-colors" title="Logout"><i class="fas fa-sign-out-alt fa-lg"></i></button>
+            </div>
+            <div class="text-center mb-8 form-element" style="animation-delay: 0.1s;"><h1 class="text-3xl md:text-4xl font-bold text-gray-800">Laporan Piket Harian</h1><p id="welcome-text" class="text-gray-600 mt-2"></p></div>
+            <form id="piketForm" class="space-y-6">
+                <input type="hidden" name="sheetName" value="PIKET">
+                <input type="hidden" id="form-action" name="action" value="submit">
+                <input type="hidden" id="timestamp" name="timestamp" value="">
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="input-group form-element" style="animation-delay: 0.2s;"><input type="text" id="namaGuru" name="Nama Guru" class="input-field" placeholder=" " readonly><label for="namaGuru" class="input-label">Nama Guru</label><div class="input-icon"><i class="fas fa-user"></i></div></div>
+                    <div class="input-group form-element" style="animation-delay: 0.3s;"><input type="date" id="tanggal" name="Tanggal" class="input-field" required><label for="tanggal" class="input-label" style="background:none;top:50%"></label><div class="input-icon"><i class="fas fa-calendar-alt"></i></div></div>
+                </div>
+                <div class="input-group form-element" style="animation-delay:0.4s"><textarea id="kegiatan" name="Kegiatan" rows="4" class="input-field" placeholder=" " required></textarea><label for="kegiatan" class="input-label">Kegiatan Piket</label></div>
+                <div class="input-group form-element" style="animation-delay:0.5s"><textarea id="kejadian" name="Kejadian" rows="3" class="input-field" placeholder=" "></textarea><label for="kejadian" class="input-label">Kejadian Khusus (Jika ada)</label></div>
+                <div class="input-group form-element" style="animation-delay:0.6s"><textarea id="keterangan" name="Keterangan" rows="3" class="input-field" placeholder=" "></textarea><label for="keterangan" class="input-label">Keterangan Tambahan</label></div>
+                
+                <div id="form-buttons" class="form-element grid grid-cols-1 sm:grid-cols-2 gap-4" style="animation-delay:0.7s">
+                    <button type="submit" id="submitButton" class="w-full submit-button flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg focus:outline-none disabled:bg-gray-400"><span id="button-text">Kirim Laporan</span></button>
+                    <button type="button" id="cancelEditButton" class="w-full submit-button flex items-center justify-center bg-gray-500 text-white font-bold py-3 px-4 rounded-lg hidden">Batal Edit</button>
+                </div>
+            </form>
+            <div id="status" class="text-center mt-6 font-medium p-3 rounded-lg hidden"></div>
+        </div>
+
+        <div id="rekap-view" class="w-full glass-container p-6 md:p-10 relative hidden main-content-area">
+            <button id="back-to-input-button" class="absolute top-4 right-4 text-gray-500 hover:text-blue-500 transition-colors z-10" title="Kembali ke Input"><i class="fas fa-edit fa-lg"></i></button>
+            <div class="text-center mb-6">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Rekap Laporan Piket</h1>
+                <p class="text-gray-600 mt-2">Menampilkan semua laporan yang masuk</p>
+            </div>
+            
+            <div class="flex flex-wrap items-end justify-center gap-4 mb-6 bg-white/20 p-4 rounded-lg">
+                <div class="flex-grow"><label for="startDate" class="text-sm font-medium text-gray-700">Dari Tanggal</label><input type="date" id="startDate" class="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"></div>
+                <div class="flex-grow"><label for="endDate" class="text-sm font-medium text-gray-700">Sampai Tanggal</label><input type="date" id="endDate" class="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"></div>
+                <button id="filterButton" class="submit-button bg-blue-600 text-white font-bold py-2 px-5 rounded-lg w-full sm:w-auto">Filter</button>
+                <button id="printPdfButton" class="submit-button bg-red-600 text-white font-bold py-2 px-5 rounded-lg w-full sm:w-auto flex items-center justify-center gap-2"><i class="fas fa-file-pdf"></i> Cetak</button>
+            </div>
+             <div id="rekap-status" class="text-center mb-4 font-medium p-3 rounded-lg hidden"></div>
+            <div id="rekap-content"></div>
+        </div>
+    </div>
+
+    <div id="full-text-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50 modal-base">
+        <div class="glass-container w-11/12 max-w-5xl h-5/6 flex flex-col p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="modal-title" class="text-2xl font-bold text-gray-800">Detail Lengkap</h2>
+                <button id="modal-close-button" class="text-gray-600 hover:text-red-500 transition-colors"><i class="fas fa-times fa-2x"></i></button>
+            </div>
+            <div id="modal-content" class="flex-grow bg-white/50 p-4 rounded-lg overflow-y-auto text-gray-700 whitespace-pre-wrap"></div>
+        </div>
+    </div>
+
+    <div id="delete-confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50 modal-base">
+        <div class="glass-container w-full max-w-sm flex flex-col p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Konfirmasi Hapus</h2>
+            <p class="text-gray-700 mb-6">Anda yakin ingin menghapus laporan ini secara permanen? Tindakan ini tidak dapat diurungkan.</p>
+            <div class="flex justify-end space-x-4">
+                <button id="modal-cancel-delete" class="submit-button bg-gray-500 text-white font-bold py-2 px-5 rounded-lg">Batal</button>
+                <button id="modal-confirm-delete" class="submit-button bg-red-600 text-white font-bold py-2 px-5 rounded-lg">Hapus</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbygW-ntF-gzYfv_amlzu-XPzbgmQwIdEXA0a19xZoXW8J2Kom1iUcZbzglgOjeEC2KR/exec';
+
+        // Global state
+        let schoolData = {};
+        let currentRekapData = [];
+
+        // Elements
+        const mainContainer = document.getElementById('main-container'), piketInputView = document.getElementById('piket-input-view'), rekapView = document.getElementById('rekap-view');
+        const piketForm = document.getElementById('piketForm'), submitButton = document.getElementById('submitButton'), buttonText = document.getElementById('button-text'), statusDiv = document.getElementById('status');
+        const logoutButton = document.getElementById('logoutButton'), rekapButton = document.getElementById('rekap-button'), backToInputButton = document.getElementById('back-to-input-button');
+        const rekapContent = document.getElementById('rekap-content'), filterButton = document.getElementById('filterButton'), printPdfButton = document.getElementById('printPdfButton'), cancelEditButton = document.getElementById('cancelEditButton');
+        const loginModal = document.getElementById('login-modal'), loginForm = document.getElementById('loginForm'), loginButton = document.getElementById('loginButton'), loginButtonText = document.getElementById('login-button-text'), loginStatus = document.getElementById('login-status'), welcomeText = document.getElementById('welcome-text');
+        const rekapStatusDiv = document.getElementById('rekap-status');
+        
+        // Modal Elements
+        const fullTextModal = document.getElementById('full-text-modal'), modalTitle = document.getElementById('modal-title'), modalContent = document.getElementById('modal-content'), modalCloseButton = document.getElementById('modal-close-button');
+        const deleteConfirmModal = document.getElementById('delete-confirm-modal'), modalConfirmDeleteBtn = document.getElementById('modal-confirm-delete'), modalCancelDeleteBtn = document.getElementById('modal-cancel-delete');
+
+        // --- UTILITY FUNCTIONS ---
+        const getLocalDateString = d => new Date(d.getTime() - (d.getTimezoneOffset()*60000)).toISOString().split('T')[0];
+        const setTodayDate = () => { document.getElementById('tanggal').value = getLocalDateString(new Date()); };
+        
+        const showStatusMessage = (message, type = 'success', location = 'form') => {
+            const div = location === 'rekap' ? rekapStatusDiv : statusDiv;
+            div.className = `text-center font-medium p-3 rounded-lg status-visible ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+            if (location === 'rekap') div.classList.add('mb-4'); else div.classList.add('mt-6');
+            div.textContent = message;
+            setTimeout(() => { div.className = 'hidden'; }, 5000);
+        };
+
+        const setDefaultDateFilters = () => {
+            const endDateInput = document.getElementById('endDate'), startDateInput = document.getElementById('startDate');
+            if (!endDateInput || !startDateInput) return;
+            const today = new Date();
+            endDateInput.value = getLocalDateString(today);
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            startDateInput.value = getLocalDateString(thirtyDaysAgo);
+        };
+        
+        const showView = v => { [piketInputView, rekapView].forEach(view => view.classList.add('hidden')); if(v) v.classList.remove('hidden'); };
+        const showLogin = () => { mainContainer.classList.add('hidden'); loginModal.classList.remove('hidden'); setTimeout(() => { loginModal.style.opacity = '1'; loginModal.querySelector('.glass-container').style.transform = 'scale(1)'; loginModal.querySelector('.glass-container').style.opacity = '1'; }, 50); };
+        
+        const showMainApp = (user) => {
+            document.getElementById('namaGuru').value = user['Nama Guru'];
+            welcomeText.textContent = `Petugas Piket: ${user['Nama Guru']}`;
+            setTimeout(() => { document.getElementById('namaGuru').focus(); document.activeElement.blur(); }, 100);
+            fetchSchoolData();
+            loginModal.style.opacity = '0';
+            setTimeout(() => { loginModal.classList.add('hidden'); mainContainer.classList.remove('hidden'); showView(piketInputView); }, 300);
+        };
+        
+        const fetchSchoolData = () => {
+            fetch(`${SCRIPT_URL}?action=getSchoolData`).then(res => res.json()).then(res => { if (res.success) { schoolData = res.data; } else { console.error("Gagal mengambil data sekolah:", res.message); } }).catch(err => console.error("Error fetching school data:", err));
+        };
+
+        const fetchAndDisplayRekapPiket = () => {
+            rekapContent.innerHTML = `<div class="col-span-full flex justify-center items-center p-8"><div class="loader !border-blue-500 !border-b-transparent !w-12 !h-12"></div></div>`;
+            const startDate = document.getElementById('startDate').value, endDate = document.getElementById('endDate').value;
+            const url = new URL(SCRIPT_URL);
+            url.searchParams.append('action', 'getRekapPiket');
+            if (startDate) url.searchParams.append('startDate', startDate);
+            if (endDate) url.searchParams.append('endDate', endDate);
+            fetch(url).then(res => res.json()).then(res => { if (res.success && res.data) { currentRekapData = res.data; renderRekapTable(res.data); } else { throw new Error(res.message || "Gagal memuat data rekap."); } }).catch(err => { rekapContent.innerHTML = `<div class="text-center p-8 text-red-700 bg-red-100 rounded-lg">${err.message}</div>`; });
+        };
+
+        const renderRekapTable = (data) => {
+            if (data.length === 0) { currentRekapData = []; rekapContent.innerHTML = '<div class="text-center p-8 text-gray-600">Belum ada laporan piket yang masuk untuk rentang tanggal ini.</div>'; return; }
+            const columns = ['Tanggal', 'Nama Guru', 'Kegiatan', 'Kejadian', 'Keterangan', 'Aksi'], longTextColumns = ['Kegiatan', 'Kejadian', 'Keterangan'], TRUNCATE_LENGTH = 40;
+            let tableHTML = '<div class="rekap-table-container"><table class="rekap-table">';
+            tableHTML += `<thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>`;
+            data.forEach(row => {
+                const rowData = JSON.stringify(row).replace(/"/g, '&quot;');
+                tableHTML += `<tr data-row='${rowData}'>`;
+                columns.forEach(colName => {
+                    let cellData = row[colName] || '-';
+                    if (colName === 'Aksi') { tableHTML += `<td class="align-top py-3 px-4 whitespace-nowrap"><button class="action-btn edit text-blue-600" title="Edit"><i class="fas fa-edit"></i></button><button class="action-btn delete text-red-600" title="Hapus"><i class="fas fa-trash-alt"></i></button></td>`; } 
+                    else if (colName === 'Tanggal' && row[colName]) { cellData = new Date(row[colName]).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }); tableHTML += `<td class="align-top py-3 px-4">${cellData}</td>`; } 
+                    else if (longTextColumns.includes(colName) && cellData.length > TRUNCATE_LENGTH) { const truncatedText = cellData.substring(0, TRUNCATE_LENGTH) + '...'; tableHTML += `<td class="align-top py-3 px-4 view-more-cell" data-fulltext="${encodeURIComponent(cellData)}" data-title="${colName}">${truncatedText}</td>`; } 
+                    else { tableHTML += `<td class="align-top py-3 px-4">${cellData}</td>`; }
+                });
+                tableHTML += '</tr>';
+            });
+            tableHTML += '</tbody></table></div>';
+            rekapContent.innerHTML = tableHTML;
+        };
+        
+        const generatePiketPdf = () => {
+            if (currentRekapData.length === 0) { showStatusMessage("Tidak ada data untuk dicetak.", "error", "rekap"); return; }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+            const user = JSON.parse(sessionStorage.getItem('userData'));
+            const pageWidth = doc.internal.pageSize.getWidth(), margin = 15;
+
+            if (schoolData.Logo) { try { doc.addImage(schoolData.Logo, 'PNG', margin, 10, 20, 20); } catch(e) { console.error("Error adding logo:", e); } }
+            doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.text(schoolData['Nama Sekolah'] || 'NAMA SEKOLAH', pageWidth / 2, 18, { align: 'center' });
+            doc.setFontSize(14); doc.setFont('helvetica', 'normal'); doc.text(`REKAP JURNAL PIKET`, pageWidth / 2, 24, { align: 'center' });
+            doc.setLineWidth(0.5); doc.line(margin, 32, pageWidth - margin, 32);
+
+            const tableHeaders = [['Tanggal', 'Nama Guru', 'Kegiatan', 'Kejadian', 'Keterangan']];
+            const tableBody = currentRekapData.map(row => [ new Date(row['Tanggal']).toLocaleDateString('id-ID'), row['Nama Guru'] || '-', row['Kegiatan'] || '-', row['Kejadian'] || '-', row['Keterangan'] || '-' ]);
+            doc.autoTable({ head: tableHeaders, body: tableBody, startY: 35, theme: 'grid', headStyles: { fillColor: [22, 160, 133], textColor: [255,255,255], fontStyle: 'bold' } });
+
+            let finalY = doc.autoTable.previous.finalY; if (finalY > doc.internal.pageSize.getHeight() - 50) { doc.addPage(); finalY = 0; }
+            const signatureY = finalY + 15;
+            const formattedDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.text(`Jakarta, ${formattedDate}`, pageWidth - margin, signatureY, { align: 'right' });
+            const signatureBlockY = signatureY + 8;
+            doc.text("Mengetahui,", margin, signatureBlockY); doc.text("Kepala Sekolah", margin, signatureBlockY + 5);
+            doc.setFont('helvetica', 'bold'); doc.text(schoolData['Nama Kepala Sekolah'] || 'Nama Kepsek', margin, signatureBlockY + 25);
+            doc.setFont('helvetica', 'normal'); doc.text(`NIP. ${schoolData['NIP Kepala Sekolah'] || '-'}`, margin, signatureBlockY + 30);
+            doc.text("Guru Piket", pageWidth - margin, signatureBlockY + 5, { align: 'right' });
+            doc.setFont('helvetica', 'bold'); doc.text(user['Nama Guru'], pageWidth - margin, signatureBlockY + 25, { align: 'right' });
+            doc.setFont('helvetica', 'normal'); doc.text(`NIP. ${user['NIP'] || '-'}`, pageWidth - margin, signatureBlockY + 30, { align: 'right' });
+            doc.save(`Rekap Piket.pdf`);
+        };
+        
+        const showFullTextModal = (title, content) => {
+            modalTitle.textContent = `Detail: ${title}`;
+            modalContent.textContent = decodeURIComponent(content);
+            fullTextModal.classList.remove('hidden');
+            setTimeout(() => {
+                const container = fullTextModal.querySelector('.glass-container');
+                fullTextModal.style.opacity = '1';
+                container.style.transform = 'scale(1)';
+                container.style.opacity = '1';
+            }, 10);
+        };
+        const hideFullTextModal = () => {
+            const container = fullTextModal.querySelector('.glass-container');
+            fullTextModal.style.opacity = '0';
+            container.style.transform = 'scale(0.95)';
+            container.style.opacity = '0';
+            setTimeout(() => { fullTextModal.classList.add('hidden'); }, 300);
+        };
+        const showDeleteConfirmModal = () => {
+            deleteConfirmModal.classList.remove('hidden');
+            setTimeout(() => {
+                const container = deleteConfirmModal.querySelector('.glass-container');
+                deleteConfirmModal.style.opacity = '1';
+                container.style.transform = 'scale(1)';
+                container.style.opacity = '1';
+            }, 10);
+        };
+        const hideDeleteConfirmModal = () => {
+            const container = deleteConfirmModal.querySelector('.glass-container');
+            deleteConfirmModal.style.opacity = '0';
+            container.style.transform = 'scale(0.95)';
+            container.style.opacity = '0';
+            setTimeout(() => { deleteConfirmModal.classList.add('hidden'); }, 300);
+        };
+
+        const resetPiketForm = () => {
+            piketForm.reset();
+            setTodayDate();
+            const user = JSON.parse(sessionStorage.getItem('userData'));
+            if(user) document.getElementById('namaGuru').value = user['Nama Guru'];
+            document.getElementById('form-action').value = 'submit';
+            document.getElementById('timestamp').value = '';
+            buttonText.textContent = 'Kirim Laporan';
+            cancelEditButton.classList.add('hidden');
+        };
+
+        // --- EVENT LISTENERS ---
+        document.addEventListener("DOMContentLoaded", () => {
+            setTodayDate();
+            setDefaultDateFilters();
+            document.querySelectorAll('.submit-button').forEach(b => b.addEventListener('click', function(e){if(this.disabled)return;const r=this.getBoundingClientRect(),s=document.createElement('span');s.classList.add('ripple'),s.style.left=`${e.clientX-r.left}px`,s.style.top=`${e.clientY-r.top}px`,this.appendChild(s),setTimeout(()=>s.remove(),600)}));
+            const storedUser = sessionStorage.getItem('userData');
+            if (storedUser) { showMainApp(JSON.parse(storedUser)); } else { showLogin(); }
+        });
+
+        loginForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const username = document.getElementById('username').value, nip = document.getElementById('nip').value;
+            loginButton.disabled = true; loginButtonText.innerHTML = `<div class="loader"></div>`; loginStatus.className = 'hidden';
+            fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(username)}&nip=${encodeURIComponent(nip)}`).then(r=>r.json()).then(d=>{if(d.success){sessionStorage.setItem('userData',JSON.stringify(d.user));showMainApp(d.user)}else{throw new Error(d.message||'Username atau NIP salah.')}}).catch(err=>{loginStatus.className='text-center mt-4 text-sm font-medium p-2 rounded-lg bg-red-100 text-red-800 block';loginStatus.textContent=err.message}).finally(()=>{loginButton.disabled=false;loginButtonText.textContent='Login'});
+        });
+
+        piketForm.addEventListener('submit', e => {
+            e.preventDefault();
+            submitButton.disabled = true; buttonText.innerHTML = `<div class="loader"></div>`; statusDiv.className = 'hidden';
+            const formData = new FormData(piketForm);
+            const isEditing = formData.get('action') === 'edit';
+            fetch(SCRIPT_URL, { method: 'POST', body: formData }).then(r=>r.json()).then(d=>{
+                if(d.success){
+                    showStatusMessage(isEditing ? '✅ Laporan berhasil diperbarui!' : '✅ Laporan piket Anda berhasil terkirim!');
+                    resetPiketForm();
+                    if (isEditing) { setTimeout(() => { showView(rekapView); fetchAndDisplayRekapPiket(); }, 1500); }
+                } else { throw new Error(d.message || 'Unknown error'); }
+            }).catch(err=>{ showStatusMessage(`❌ Terjadi kesalahan! ${err.message}`, 'error'); }).finally(()=>{submitButton.disabled=false;buttonText.textContent=isEditing ? 'Update Laporan' : 'Kirim Laporan'});
+        });
+        
+        logoutButton.addEventListener('click', ()=>{sessionStorage.removeItem('userData');loginForm.reset();loginStatus.className='hidden';showLogin()});
+        rekapButton.addEventListener('click', ()=>{showView(rekapView); fetchAndDisplayRekapPiket();});
+        backToInputButton.addEventListener('click', ()=>showView(piketInputView));
+        filterButton.addEventListener('click', fetchAndDisplayRekapPiket);
+        printPdfButton.addEventListener('click', generatePiketPdf);
+        cancelEditButton.addEventListener('click', resetPiketForm);
+        
+        // Modal & Rekap Table Event Delegation
+        modalCloseButton.addEventListener('click', hideFullTextModal);
+        fullTextModal.addEventListener('click', e => { if (e.target === fullTextModal) hideFullTextModal(); });
+        rekapContent.addEventListener('click', (e) => {
+            const viewCell = e.target.closest('.view-more-cell');
+            if (viewCell) {
+                showFullTextModal(viewCell.dataset.title, viewCell.dataset.fulltext);
+                return; 
+            }
+            
+            const rowEl = e.target.closest('tr');
+            if (!rowEl) return;
+            const rowData = JSON.parse(rowEl.dataset.row);
+
+            if (e.target.closest('.delete')) {
+                if(rowData.Timestamp) {
+                    deleteConfirmModal.dataset.timestamp = rowData.Timestamp;
+                    showDeleteConfirmModal();
+                } else {
+                    showStatusMessage('❌ Timestamp tidak ditemukan, data lama tidak bisa dihapus.', 'error', 'rekap');
+                }
+            }
+            
+            if (e.target.closest('.edit')) {
+                if(!rowData.Timestamp) {
+                    showStatusMessage('❌ Timestamp tidak ditemukan, data lama tidak bisa diedit.', 'error', 'rekap');
+                    return;
+                }
+                document.getElementById('form-action').value = 'edit';
+                document.getElementById('timestamp').value = rowData.Timestamp;
+                document.getElementById('namaGuru').value = rowData['Nama Guru'] || '';
+                document.getElementById('tanggal').value = getLocalDateString(new Date(rowData['Tanggal']));
+                document.getElementById('kegiatan').value = rowData['Kegiatan'] || '';
+                document.getElementById('kejadian').value = rowData['Kejadian'] || '';
+                document.getElementById('keterangan').value = rowData['Keterangan'] || '';
+                buttonText.textContent = 'Update Laporan';
+                cancelEditButton.classList.remove('hidden');
+                showView(piketInputView);
+                window.scrollTo(0, 0);
+            }
+        });
+
+        // Delete Modal Listeners
+        modalCancelDeleteBtn.addEventListener('click', hideDeleteConfirmModal);
+        deleteConfirmModal.addEventListener('click', e => { if (e.target === deleteConfirmModal) hideDeleteConfirmModal(); });
+        modalConfirmDeleteBtn.addEventListener('click', () => {
+            const timestamp = deleteConfirmModal.dataset.timestamp;
+            if (!timestamp) return;
+
+            const formData = new FormData();
+            formData.append('sheetName', 'PIKET');
+            formData.append('action', 'delete');
+            formData.append('timestamp', timestamp);
+            
+            fetch(SCRIPT_URL, { method: 'POST', body: formData })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        showStatusMessage('✅ Laporan berhasil dihapus.', 'success', 'rekap');
+                        fetchAndDisplayRekapPiket();
+                    } else { throw new Error(d.message); }
+                })
+                .catch(err => showStatusMessage(`❌ Gagal menghapus: ${err.message}`, 'error', 'rekap'));
+
+            hideDeleteConfirmModal();
+        });
+
+        const style=document.createElement('style');style.innerHTML=`@keyframes slideInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.status-visible{display:block!important;animation:slideInUp .5s ease-out forwards}`;document.head.appendChild(style);
+    </script>
+</body>
+</html>

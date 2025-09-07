@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(-45deg, #4b6cb7, #182848); background-size: 400% 400%; animation: gradientBG 15s ease infinite; overflow-x: hidden; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .glass-container { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(15px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .main-content-area { max-height: calc(100vh - 4rem); overflow-y: auto; }
+        .main-content-area::-webkit-scrollbar{width:8px} .main-content-area::-webkit-scrollbar-track{background:rgba(255,255,255,0.1);border-radius:10px} .main-content-area::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.2);border-radius:10px}
+        .input-group{position:relative} .input-field{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:.5rem;background-color:rgba(255,255,255,.5);transition:all .2s ease} .input-field:focus{outline:0;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.2)} .input-field:read-only { background-color: #e5e7eb; color: #6b7280; cursor: not-allowed; } .input-label{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#6b7280;pointer-events:none;transition:all .2s ease} .input-field:focus+.input-label,.input-field:not(:placeholder-shown)+.input-label, .input-field:read-only+.input-label, .input-field:-webkit-autofill+.input-label {top:-10px;font-size:.75rem;padding:0 4px;background-color:#fff;color:#3b82f6}
+        .submit-button{position:relative;overflow:hidden;transition:all .3s ease} .submit-button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 25px rgba(59,130,246,.3)} .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.5);transform:scale(0);animation:ripple-animation .6s linear} @keyframes ripple-animation{to{transform:scale(4);opacity:0}}
+        .loader{width:20px;height:20px;border:2px solid #fff;border-bottom-color:transparent;border-radius:50%;display:inline-block;box-sizing:border-box;animation:rotation 1s linear infinite} @keyframes rotation{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+        .rekap-table-container { max-height: 65vh; overflow-y: auto; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 8px; }
+        .rekap-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        .rekap-table th, .rekap-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.3); }
+        .rekap-table thead th { position: sticky; top: 0; z-index: 10; background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(5px); font-weight: 600; }
+        .rekap-table tbody tr:hover { background-color: rgba(255, 255, 255, 0.2); }
+        .action-btn { background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: all 0.2s; }
+        .action-btn.edit:hover { background-color: rgba(59, 130, 246, 0.2); color: #2563eb; }
+        .action-btn.delete:hover { background-color: rgba(239, 68, 68, 0.2); color: #dc2626; }
+        .modal-base { transition: opacity 0.3s ease-out; } .modal-base .glass-container { transition: transform 0.3s ease-out, opacity 0.3s ease-out; transform: scale(0.95); opacity: 0; }
+        .nav-button { padding: 10px 20px; border-radius: 8px; transition: all 0.3s; font-weight: 500; }
+        .nav-button.active { background-color: rgba(255, 255, 255, 0.8); color: #1e3a8a; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .nav-button:not(.active) { background-color: rgba(255, 255, 255, 0.3); color: #f0f9ff; }
+        .view-more-cell { cursor: pointer; color: #3b82f6; text-decoration: underline; text-decoration-style: dotted; font-weight: 500; }
+        .accordion-title { cursor: pointer; padding: 1rem; background-color: rgba(255, 255, 255, 0.2); border-radius: 8px; transition: background-color 0.3s; }
+        .accordion-title:hover { background-color: rgba(255, 255, 255, 0.3); }
+        .accordion-content { display: none; margin-top: 1rem; }
+        .accordion-title .fa-chevron-down { transition: transform 0.3s; }
+        .accordion-title.active .fa-chevron-down { transform: rotate(180deg); }
+        .status-badge { padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; color: white; }
+        .status-disetujui { background-color: #16a34a; }
+        .status-diperbaiki { background-color: #d97706; }
+        .status-ditolak { background-color: #dc2626; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div id="login-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 p-4 hidden z-50 modal-base">
+        <div class="w-full max-w-sm glass-container p-8"><div class="text-center mb-6"><h1 class="text-2xl font-bold text-gray-800">Admin Login</h1><p class="text-gray-600 mt-1">Silakan login untuk melanjutkan</p></div><form id="loginForm" class="space-y-5"><div class="input-group"><input type="text" id="username" class="input-field !pl-10" placeholder=" " required><label for="username" class="input-label !left-10">Username</label><i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i></div><div class="input-group"><input type="password" id="nip" class="input-field !pl-10" placeholder=" " required><label for="nip" class="input-label !left-10">NIP (Password)</label><i class="fas fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i></div><button type="submit" id="loginButton" class="w-full submit-button flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg focus:outline-none disabled:bg-gray-400"><span id="login-button-text">Login</span></button></form></div>
+    </div>
+
+    <div id="main-container" class="w-full h-screen hidden flex flex-col p-4">
+        <div class="glass-container p-4 sm:p-6 md:p-8 flex-grow flex flex-col">
+            <header class="flex flex-col sm:flex-row justify-between items-center mb-6"><div><h1 class="text-2xl md:text-3xl font-bold text-gray-800">Admin Dashboard</h1><p id="welcome-text" class="text-gray-600"></p></div><div class="flex items-center space-x-2 mt-4 sm:mt-0"><button id="logoutButton" class="text-gray-500 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-100" title="Logout"><i class="fas fa-sign-out-alt fa-lg"></i></button></div></header>
+            <nav class="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mb-6 bg-white/30 p-2 rounded-xl">
+                <button id="nav-home" class="nav-button active" data-view="home-view"><i class="fas fa-home mr-2"></i>Home</button>
+                <button id="nav-users" class="nav-button" data-view="users-view"><i class="fas fa-users-cog mr-2"></i>Pengguna</button>
+                <button id="nav-jurnal" class="nav-button" data-view="jurnal-view"><i class="fas fa-book-reader mr-2"></i>Rekap Jurnal</button>
+                <button id="nav-piket" class="nav-button" data-view="piket-view"><i class="fas fa-clipboard-list mr-2"></i>Rekap Piket</button>
+                <button id="nav-supervisi" class="nav-button" data-view="supervisi-view"><i class="fas fa-chalkboard-teacher mr-2"></i>Supervisi</button>
+            </nav>
+            <main class="flex-grow overflow-y-auto main-content-area pr-2">
+                <div id="home-view" class="view-content">
+                    <div class="flex flex-wrap items-end justify-center gap-4 bg-white/20 p-4 rounded-lg mb-6">
+                        <div class="flex-grow min-w-[150px]"><label for="home-startDate" class="text-sm font-medium text-gray-700">Dari Tanggal</label><input type="date" id="home-startDate" class="w-full mt-1 p-2 border border-gray-300 rounded-lg"></div>
+                        <div class="flex-grow min-w-[150px]"><label for="home-endDate" class="text-sm font-medium text-gray-700">Sampai Tanggal</label><input type="date" id="home-endDate" class="w-full mt-1 p-2 border border-gray-300 rounded-lg"></div>
+                        <button id="home-filterButton" class="submit-button bg-blue-600 text-white font-bold py-2 px-5 rounded-lg w-full sm:w-auto">Tampilkan Data</button>
+                    </div>
+                    
+                    <div id="main-charts-grid" class="grid grid-cols-1 xl:grid-cols-[7fr_3fr] gap-6 mb-8">
+                        
+                        <div class="bg-white/30 p-4 rounded-lg shadow-md">
+                            <h3 class="text-lg font-semibold text-gray-700 text-center mb-4">Grafik Kehadiran per Kelas</h3>
+                            <div id="charts-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4"></div>
+                        </div>
+
+                        <div class="bg-white/30 p-4 rounded-lg shadow-md">
+                            <div class="grid grid-cols-1 gap-6">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-700 text-center mb-2">Grafik Keagamaan</h3>
+                                    <div class="relative h-60">
+                                        <canvas id="religion-chart-canvas"></canvas>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-700 text-center mb-2">Grafik Sosial</h3>
+                                     <div class="relative h-60">
+                                        <canvas id="social-chart-canvas"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div>
+                            <h3 class="accordion-title flex justify-between items-center text-lg font-semibold text-gray-700" data-target="attendance-table-content">Tabel Kehadiran Siswa <i class="fas fa-chevron-down"></i></h3>
+                            <div id="attendance-table-content" class="accordion-content"></div>
+                        </div>
+                        <div>
+                            <h3 class="accordion-title flex justify-between items-center text-lg font-semibold text-gray-700" data-target="religion-table-content">Tabel Data Keagamaan <i class="fas fa-chevron-down"></i></h3>
+                            <div id="religion-table-content" class="accordion-content"></div>
+                        </div>
+                        <div>
+                           <h3 class="accordion-title flex justify-between items-center text-lg font-semibold text-gray-700" data-target="social-table-content">Tabel Data Sosial <i class="fas fa-chevron-down"></i></h3>
+                           <div id="social-table-content" class="accordion-content"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="users-view" class="view-content hidden"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-semibold text-gray-700">Manajemen Pengguna</h2><button id="addUserButton" class="submit-button bg-green-600 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2"><i class="fas fa-user-plus"></i> Tambah</button></div><div id="users-content" class="rekap-table-container"></div></div>
+                
+                <div id="jurnal-view" class="view-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Rekap Jurnal Seluruh Guru</h2>
+                    <div class="flex flex-wrap items-end justify-center gap-4 mb-6 bg-white/20 p-4 rounded-lg">
+                        <div class="flex-grow min-w-[120px]"><label for="jurnal-startDate" class="text-sm font-medium text-gray-700">Dari</label><input type="date" id="jurnal-startDate" class="w-full mt-1 p-2 border border-gray-300 rounded-lg"></div>
+                        <div class="flex-grow min-w-[120px]"><label for="jurnal-endDate" class="text-sm font-medium text-gray-700">Sampai</label><input type="date" id="jurnal-endDate" class="w-full mt-1 p-2 border border-gray-300 rounded-lg"></div>
+                        <div class="flex-grow min-w-[150px]"><label for="jurnal-teacherFilter" class="text-sm font-medium text-gray-700">Guru</label><select id="jurnal-teacherFilter" class="w-full mt-1 p-2 border border-gray-300 rounded-lg"></select></div>
+                        <div class="flex-grow min-w-[120px]"><label for="jurnal-classFilter" class="text-sm font-medium text-gray-700">Kelas</label><select id="jurnal-classFilter" class="w-full mt-1 p-2 border border-gray-300 rounded-lg"></select></div>
+                        <button id="jurnal-filterButton" class="submit-button bg-blue-600 text-white font-bold py-2 px-5 rounded-lg w-full sm:w-auto">Filter</button>
+                        <button id="jurnal-printPdfButton" class="submit-button bg-red-600 text-white font-bold py-2 px-5 rounded-lg w-full sm:w-auto flex items-center gap-2"><i class="fas fa-file-pdf"></i> Cetak</button>
+                    </div>
+                    <div id="jurnal-content"></div>
+                </div>
+
+                <div id="piket-view" class="view-content hidden"><h2 class="text-xl font-semibold text-gray-700 mb-4">Rekap Piket Seluruh Guru</h2><div class="flex flex-wrap items-end justify-center gap-4 mb-6 bg-white/20 p-4 rounded-lg"><div class="flex-grow min-w-[150px]"><label for="piket-startDate" class="text-sm font-medium text-gray-700">Dari</label><input type="date" id="piket-startDate" class="w-full mt-1 p-2 border border-gray-300 rounded-lg"></div><div class="flex-grow min-w-[150px]"><label for="piket-endDate" class="text-sm font-medium text-gray-700">Sampai</label><input type="date" id="piket-endDate" class="w-full mt-1 p-2 border border-gray-300 rounded-lg"></div><button id="piket-filterButton" class="submit-button bg-blue-600 text-white font-bold py-2 px-5 rounded-lg w-full sm:w-auto">Filter</button><button id="piket-printPdfButton" class="submit-button bg-red-600 text-white font-bold py-2 px-5 rounded-lg w-full sm:w-auto flex items-center gap-2"><i class="fas fa-file-pdf"></i> Cetak</button></div><div id="piket-content"></div></div>
+
+                <div id="supervisi-view" class="view-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Data Supervisi Administrasi Kelas</h2>
+                    <div id="supervisi-content" class="rekap-table-container"></div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <div id="user-form-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-40 modal-base"><div class="glass-container w-full max-w-lg flex flex-col p-6"><div class="flex justify-between items-center mb-4"><h2 id="user-modal-title" class="text-2xl font-bold text-gray-800">Tambah Pengguna</h2><button class="modal-close-button"><i class="fas fa-times fa-lg text-gray-600 hover:text-red-500"></i></button></div><form id="userForm" class="space-y-4"><input type="hidden" name="action" value="saveUser"><input type="hidden" name="sheetName" value="ADMIN"><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="input-group"><input type="text" name="Nama Guru" class="input-field" placeholder=" " required><label class="input-label">Nama Guru</label></div><div class="input-group"><input type="text" name="NIP" class="input-field" placeholder=" " required><label class="input-label">NIP</label></div><div class="input-group"><input type="text" name="Username" class="input-field" placeholder=" " required><label class="input-label">Username</label></div><div class="input-group"><input type="text" name="Kelas" class="input-field" placeholder=" "><label class="input-label">Kelas</label></div><div class="input-group"><input type="text" name="Role" class="input-field" placeholder=" "><label class="input-label">Role (e.g., Admin)</label></div></div><div class="flex justify-end space-x-4 pt-4"><button type="button" class="modal-cancel-button submit-button bg-gray-500 text-white font-bold py-2 px-5 rounded-lg">Batal</button><button type="submit" id="saveUserButton" class="submit-button bg-blue-600 text-white font-bold py-2 px-5 rounded-lg">Simpan</button></div></form></div></div>
+    <div id="entry-form-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-40 modal-base"></div>
+    <div id="delete-confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50 modal-base"><div class="glass-container w-full max-w-sm flex flex-col p-6 text-center"><h2 class="text-2xl font-bold text-gray-800 mb-4">Konfirmasi Hapus</h2><p class="text-gray-700 mb-6">Anda yakin ingin menghapus data ini secara permanen?</p><div class="flex justify-center space-x-4"><button id="modal-cancel-delete" class="submit-button bg-gray-500 text-white font-bold py-2 px-5 rounded-lg">Batal</button><button id="modal-confirm-delete" class="submit-button bg-red-600 text-white font-bold py-2 px-5 rounded-lg">Hapus</button></div></div></div>
+    <div id="full-text-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50 modal-base"><div class="glass-container w-11/12 max-w-5xl h-5/6 flex flex-col p-6"><div class="flex justify-between items-center mb-4"><h2 id="modal-title" class="text-2xl font-bold text-gray-800">Detail</h2><button class="modal-close-button"><i class="fas fa-times fa-2x text-gray-600 hover:text-red-500"></i></button></div><div id="modal-content" class="flex-grow bg-white/50 p-4 rounded-lg overflow-y-auto text-gray-700 whitespace-pre-wrap"></div></div></div>
+    
+    <div id="chart-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden z-[55] modal-base">
+        <div class="glass-container w-full max-w-3xl flex flex-col p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="chart-modal-title" class="text-2xl font-bold text-gray-800">Detail Grafik</h2>
+                <button class="modal-close-button text-gray-600 hover:text-red-500 transition-colors"><i class="fas fa-times fa-2x"></i></button>
+            </div>
+            <div class="relative h-96 md:h-[500px]">
+                <canvas id="enlarged-chart-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div id="supervisi-form-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-40 modal-base">
+      <div class="glass-container w-full max-w-4xl flex flex-col p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 id="supervisi-modal-title" class="text-2xl font-bold text-gray-800">Edit Supervisi</h2>
+            <button class="modal-close-button"><i class="fas fa-times fa-lg text-gray-600 hover:text-red-500"></i></button>
+        </div>
+        <form id="supervisiForm" class="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+          <input type="hidden" name="action" value="editAdmData">
+          <input type="hidden" name="sheetName" value="ADM">
+          <input type="hidden" name="KELAS">
+          
+          <div id="supervisi-form-items" class="space-y-6"></div>
+
+          <div class="p-4 border border-gray-400 rounded-lg bg-blue-500/10">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Detail Supervisi Kelas</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="input-group"><input type="date" name="SUPERVISI_TANGGAL" class="input-field" placeholder=" "><label class="input-label" style="background:none;top:50%"></label></div>
+                <div class="input-group"><input type="text" name="SUPERVISI_RPP" class="input-field" placeholder=" " readonly><label class="input-label">Link RPP (dari Guru)</label></div>
+                <div class="md:col-span-2 input-group"><input type="text" name="SUPERVISI_DOKUMENTASI" class="input-field" placeholder=" " readonly><label class="input-label">Link Dokumentasi (dari Guru)</label></div>
+                <div class="input-group"><input type="text" name="SUPERVISI_NILAI" class="input-field" placeholder=" "><label class="input-label">Nilai</label></div>
+                <div class="md:col-span-2 input-group"><textarea name="SUPERVISI_KOMENTAR" rows="3" class="input-field" placeholder=" "></textarea><label class="input-label">Komentar/Catatan</label></div>
+            </div>
+          </div>
+          
+          <div class="flex justify-end space-x-4 pt-4">
+            <button type="button" class="modal-cancel-button submit-button bg-gray-500 text-white font-bold py-2 px-5 rounded-lg">Batal</button>
+            <button type="submit" id="saveSupervisiButton" class="submit-button bg-blue-600 text-white font-bold py-2 px-5 rounded-lg">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="notification-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-[60] modal-base"><div class="glass-container w-full max-w-sm flex flex-col p-6 text-center"><h2 id="notification-title" class="text-2xl font-bold text-gray-800 mb-4"></h2><p id="notification-message" class="text-gray-700 mb-6"></p><div class="flex justify-center"><button id="notification-close-button" class="submit-button bg-blue-600 text-white font-bold py-2 px-8 rounded-lg">OK</button></div></div></div>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbygW-ntF-gzYfv_amlzu-XPzbgmQwIdEXA0a19xZoXW8J2Kom1iUcZbzglgOjeEC2KR/exec';
+        let schoolData = {}, allPiketData = [], allUsersData = [], allJurnalData = [], allAdmData = [], initialJurnalDataForFilter = [], homeDataCache = null, enlargedChartInstance = null, religionChartInstance = null, socialChartInstance = null;
+
+        const showModal = (modalId) => { const modal = document.getElementById(modalId); if (!modal) return; modal.classList.remove('hidden'); setTimeout(() => { const c = modal.querySelector('.glass-container'); modal.style.opacity = '1'; c.style.transform = 'scale(1)'; c.style.opacity = '1'; }, 10); };
+        const hideModal = (modalId) => { const modal = document.getElementById(modalId); if (!modal) return; const c = modal.querySelector('.glass-container'); modal.style.opacity = '0'; c.style.transform = 'scale(0.95)'; c.style.opacity = '0'; setTimeout(() => modal.classList.add('hidden'), 300);};
+        const showView = (viewId) => { document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden')); document.getElementById(viewId).classList.remove('hidden'); document.querySelectorAll('.nav-button').forEach(b => b.classList.toggle('active', b.dataset.view === viewId)); };
+        const loaderHTML = `<div class="flex justify-center items-center p-8"><div class="loader !border-blue-600 !border-b-transparent !w-12 !h-12"></div></div>`;
+        const getLocalDateString = d => new Date(d.getTime() - (d.getTimezoneOffset()*60000)).toISOString().split('T')[0];
+        const showNotificationModal = (title, message, type = 'info') => { const t = document.getElementById('notification-title'), m = document.getElementById('notification-message'); t.textContent = title; m.textContent = message; t.className = 'text-2xl font-bold text-gray-800 mb-4'; if (type === 'error') t.classList.add('text-red-600'); else if (type === 'success') t.classList.add('text-green-600'); showModal('notification-modal'); };
+
+        const showLogin = () => { document.getElementById('main-container').classList.add('hidden'); showModal('login-modal'); };
+        const showMainApp = (user) => { document.getElementById('welcome-text').textContent = `Selamat datang, ${user['Nama Guru']}`; fetchSchoolData(); hideModal('login-modal'); document.getElementById('main-container').classList.remove('hidden'); document.getElementById('home-filterButton').click(); };
+        const fetchSchoolData = () => fetch(`${SCRIPT_URL}?action=getSchoolData`).then(r=>r.json()).then(d=>{if(d.success) schoolData=d.data});
+
+        const handleHomeFilter = () => {
+            homeDataCache = null;
+            document.getElementById('charts-container').innerHTML = loaderHTML;
+            if(religionChartInstance) religionChartInstance.destroy();
+            if(socialChartInstance) socialChartInstance.destroy();
+            document.querySelectorAll('.accordion-content').forEach(el => { el.style.display = 'none'; el.innerHTML = ''; });
+            document.querySelectorAll('.accordion-title').forEach(el => el.classList.remove('active'));
+
+            const url = new URL(SCRIPT_URL);
+            url.searchParams.set('action', 'getHomeData');
+            url.searchParams.set('startDate', document.getElementById('home-startDate').value);
+            url.searchParams.set('endDate', document.getElementById('home-endDate').value);
+            fetch(url).then(r=>r.json()).then(res => {
+                if (!res.success) throw new Error(res.message);
+                homeDataCache = res.data;
+                renderAttendanceCharts(homeDataCache); 
+                renderReligionChart(homeDataCache);
+                renderSocialChart(homeDataCache);
+            }).catch(err => {
+                showNotificationModal('Error', err.message, 'error');
+                document.getElementById('charts-container').innerHTML = `<div class="col-span-full text-center text-red-600 p-4">${err.message}</div>`;
+            });
+        };
+
+        const renderAttendanceTable = (data, container) => { const h = ['KELAS', 'P', 'L', 'Jml', 'S', 'I', 'A', 'Hadir']; let t = '<div class="rekap-table-container"><table class="rekap-table"><thead><tr>' + h.map(i=>`<th>${i}</th>`).join('') + '</tr></thead><tbody>'; (data || []).forEach(row => { const jml = Number(row['JML']) || 0, sakit = Number(row['sakit']) || 0, izin = Number(row['izin']) || 0, alfa = Number(row['alfa']) || 0, hadir = jml - sakit - izin - alfa; t += `<tr><td>${row['KELAS']||'-'}</td><td>${row['PEREMPUAN']||0}</td><td>${row['LAKI-LAKI']||0}</td><td>${jml}</td><td>${sakit}</td><td>${izin}</td><td>${alfa}</td><td>${hadir}</td></tr>`; }); t += '</tbody></table></div>'; container.innerHTML = t; };
+        const renderReligionTable = (data, container) => { const h = ['Kelas', 'Islam', 'Kristen', 'Katholik', 'Hindu', 'Budha', 'Konghucu']; let t = '<div class="rekap-table-container"><table class="rekap-table"><thead><tr>' + h.map(i=>`<th>${i}</th>`).join('') + '</tr></thead><tbody>'; (data || []).forEach(row => { t += `<tr><td>${row['KELAS']||'-'}</td><td>${row['ISLAM']||0}</td><td>${row['KRISTEN']||0}</td><td>${row['KATHOLIK']||0}</td><td>${row['HINDU']||0}</td><td>${row['BUDHA']||0}</td><td>${row['KONGHUCU']||0}</td></tr>`; }); t += '</tbody></table></div>'; container.innerHTML = t; };
+        const renderSocialTable = (data, container) => { const h = ['Kelas', 'KJP', 'Yatim', 'Piatu']; let t = '<div class="rekap-table-container"><table class="rekap-table"><thead><tr>' + h.map(i=>`<th>${i}</th>`).join('') + '</tr></thead><tbody>'; (data || []).forEach(row => { t += `<tr><td>${row['KELAS']||'-'}</td><td>${row['KJP']||0}</td><td>${row['YATIM']||0}</td><td>${row['PIATU']||0}</td></tr>`; }); t += '</tbody></table></div>'; container.innerHTML = t; };
+
+        const fetchAndDisplayUsers = () => { const c = document.getElementById('users-content'); c.innerHTML = loaderHTML; fetch(`${SCRIPT_URL}?action=getAllUsers`).then(r=>r.json()).then(res => { if (!res.success) throw new Error(res.message); allUsersData = res.data; renderUsersTable(allUsersData); }).catch(err => showNotificationModal('Error', err.message, 'error')); };
+        const renderUsersTable = (data) => { const c = document.getElementById('users-content'); if (data.length === 0) { c.innerHTML = '<p>Tidak ada data.</p>'; return; } const h = ['Nama Guru', 'NIP', 'Username', 'Kelas', 'Role', 'Aksi']; let t = '<table class="rekap-table"><thead><tr>' + h.map(i => `<th>${i}</th>`).join('') + '</tr></thead><tbody>'; data.forEach(u => { const rd = JSON.stringify(u).replace(/"/g, '&quot;'); t += `<tr data-row='${rd}'><td>${u['Nama Guru']||'-'}</td><td>${u['NIP']||'-'}</td><td>${u['Username']||'-'}</td><td>${u['Kelas']||'-'}</td><td>${u['Role']||'-'}</td><td class="whitespace-nowrap"><button class="action-btn edit text-blue-600" title="Edit"><i class="fas fa-edit"></i></button><button class="action-btn delete text-red-600" title="Hapus"><i class="fas fa-trash-alt"></i></button></td></tr>`; }); t += '</tbody></table>'; c.innerHTML = t; };
+        const openUserForm = (user = null) => { const f = document.getElementById('userForm'); f.reset(); const n = f.querySelector('[name="NIP"]'); if (user) { document.getElementById('user-modal-title').textContent = 'Edit Pengguna'; Object.keys(user).forEach(k => { const i = f.querySelector(`[name="${k}"]`); if (i) i.value = user[k]; }); n.readOnly = true; } else { document.getElementById('user-modal-title').textContent = 'Tambah Pengguna'; n.readOnly = false; } showModal('user-form-modal'); };
+        const fetchAndDisplayJurnal = () => { const contentDiv = document.getElementById('jurnal-content'); contentDiv.innerHTML = loaderHTML; const url = new URL(SCRIPT_URL); url.searchParams.set('action', 'getAllJurnal'); url.searchParams.set('startDate', document.getElementById('jurnal-startDate').value); url.searchParams.set('endDate', document.getElementById('jurnal-endDate').value); url.searchParams.set('namaGuru', document.getElementById('jurnal-teacherFilter').value); url.searchParams.set('kelas', document.getElementById('jurnal-classFilter').value); fetch(url).then(r=>r.json()).then(res => { if (!res.success) throw new Error(res.message); allJurnalData = res.data; renderJurnalTable(allJurnalData); }).catch(err => showNotificationModal('Error', err.message, 'error')); };
+        const renderJurnalTable = (data) => { const contentDiv = document.getElementById('jurnal-content'); if (data.length === 0) { contentDiv.innerHTML = '<p class="text-center p-4">Tidak ada data jurnal ditemukan.</p>'; return; } const headers = ['Tanggal', 'Guru', 'Kelas', 'Kegiatan', 'Absensi', 'Kejadian', 'Keterangan', 'Aksi']; let tableHTML = '<div class="rekap-table-container"><table class="rekap-table"><thead><tr>' + headers.map(h=>`<th>${h}</th>`).join('') + '</tr></thead><tbody>'; data.forEach(row => { const rowData = JSON.stringify(row).replace(/"/g, '&quot;'); tableHTML += `<tr data-row='${rowData}' data-type="jurnal"><td>${new Date(row['Tanggal']).toLocaleDateString('id-ID')}</td><td>${row['Nama Guru']}</td><td>${row['Kelas'] || '-'}</td><td class="view-more-cell" data-fulltext="${encodeURIComponent(row['Kegiatan'] || '')}" data-title="Kegiatan">${(row['Kegiatan'] || '-').substring(0,25)}...</td><td>S:${row['S']||0}, I:${row['I']||0}, A:${row['A']||0}</td><td class="view-more-cell" data-fulltext="${encodeURIComponent(row['Kejadian'] || '')}" data-title="Kejadian">${(row['Kejadian'] || '-').substring(0,25)}...</td><td class="view-more-cell" data-fulltext="${encodeURIComponent(row['Keterangan'] || '')}" data-title="Keterangan">${(row['Keterangan'] || '-').substring(0,25)}...</td><td class="whitespace-nowrap"><button class="action-btn edit text-blue-600"><i class="fas fa-edit"></i></button><button class="action-btn delete text-red-600"><i class="fas fa-trash-alt"></i></button></td></tr>`; }); tableHTML += '</tbody></table></div>'; contentDiv.innerHTML = tableHTML; };
+        const populateTeacherFilter = (data) => { const select = document.getElementById('jurnal-teacherFilter'); const teachers = [...new Set(data.map(i => i['Nama Guru']))].sort(); select.innerHTML = '<option value="all">Semua Guru</option>'; teachers.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`); };
+        const populateClassFilter = (data) => { const select = document.getElementById('jurnal-classFilter'); const classes = [...new Set(data.filter(i => i['Kelas']).map(i => i['Kelas']))].sort(); select.innerHTML = '<option value="all">Semua Kelas</option>'; classes.forEach(c => select.innerHTML += `<option value="${c}">${c}</option>`); };
+        const fetchAndDisplayPiket = () => { const c = document.getElementById('piket-content'); c.innerHTML = loaderHTML; const url = new URL(SCRIPT_URL); url.searchParams.set('action', 'getAllPiket'); url.searchParams.set('startDate', document.getElementById('piket-startDate').value); url.searchParams.set('endDate', document.getElementById('piket-endDate').value); fetch(url).then(r=>r.json()).then(res => { if (!res.success) throw new Error(res.message); allPiketData = res.data; renderPiketTable(res.data); }).catch(err => showNotificationModal('Error', err.message, 'error')); };
+        const renderPiketTable = (data) => { const c = document.getElementById('piket-content'); if (data.length === 0) { c.innerHTML = '<p class="text-center p-4">Tidak ada data piket.</p>'; return; } const h = ['Tanggal', 'Guru', 'Kegiatan', 'Kejadian', 'Aksi']; let t = '<div class="rekap-table-container"><table class="rekap-table"><thead><tr>' + h.map(i=>`<th>${i}</th>`).join('') + '</tr></thead><tbody>'; data.forEach(row => { const rd = JSON.stringify(row).replace(/"/g, '&quot;'); t += `<tr data-row='${rd}' data-type="piket"><td>${new Date(row['Tanggal']).toLocaleDateString('id-ID')}</td><td>${row['Nama Guru']}</td><td class="view-more-cell" data-fulltext="${encodeURIComponent(row['Kegiatan']||'')}">${(row['Kegiatan']||'-').substring(0,40)}...</td><td class="view-more-cell" data-fulltext="${encodeURIComponent(row['Kejadian']||'')}">${(row['Kejadian']||'-').substring(0,40)}...</td><td class="whitespace-nowrap"><button class="action-btn edit text-blue-600"><i class="fas fa-edit"></i></button><button class="action-btn delete text-red-600"><i class="fas fa-trash-alt"></i></button></td></tr>`; }); t += '</tbody></table></div>'; c.innerHTML = t; };
+        const openEntryForm = (rowData, type) => { const timestampDate = new Date(rowData.Timestamp); if (isNaN(timestampDate.getTime())) { showNotificationModal('Error', 'Timestamp tidak valid.', 'error'); return; } const m = document.getElementById('entry-form-modal'), sheetName = type === 'jurnal' ? 'GURU' : 'PIKET'; let f = `<div class="glass-container w-full max-w-2xl flex flex-col p-6"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Edit Laporan ${type}</h2><button class="modal-close-button"><i class="fas fa-times fa-lg"></i></button></div><form id="entryForm" class="space-y-4"><input type="hidden" name="action" value="edit"><input type="hidden" name="timestamp" value="${timestampDate.toISOString()}"><input type="hidden" name="sheetName" value="${sheetName}"><div class="grid md:grid-cols-2 gap-4"><div class="input-group"><input type="text" name="Nama Guru" class="input-field" value="${rowData['Nama Guru']||''}" readonly><label class="input-label">Nama</label></div><div class="input-group"><input type="date" name="Tanggal" class="input-field" value="${getLocalDateString(new Date(rowData['Tanggal']))}"><label class="input-label" style="background:none;top:50%"></label></div></div><div class="input-group"><textarea name="Kegiatan" rows="4" class="input-field">${rowData['Kegiatan']||''}</textarea><label class="input-label">Kegiatan</label></div><div class="input-group"><textarea name="Kejadian" rows="3" class="input-field">${rowData['Kejadian']||''}</textarea><label class="input-label">Kejadian</label></div>`; if (type === 'jurnal') { f += `<div class="input-group"><input type="text" name="Kelas" class="input-field" value="${rowData['Kelas']||''}" readonly><label class="input-label">Kelas</label></div><div class="input-group"><input type="text" name="DPL" class="input-field" value="${rowData['DPL']||''}"><label class="input-label">DPL</label></div><div class="grid grid-cols-3 gap-4 p-2 border rounded"><div class="text-center"><label>S</label><input type="number" name="S" class="w-full text-center border rounded" value="${rowData['S']||'0'}"></div><div class="text-center"><label>I</label><input type="number" name="I" class="w-full text-center border rounded" value="${rowData['I']||'0'}"></div><div class="text-center"><label>A</label><input type="number" name="A" class="w-full text-center border rounded" value="${rowData['A']||'0'}"></div></div>`; } f += `<div class="input-group"><textarea name="Keterangan" rows="3" class="input-field">${rowData['Keterangan']||''}</textarea><label class="input-label">Keterangan</label></div><div class="flex justify-end space-x-4 pt-4"><button type="button" class="modal-cancel-button submit-button bg-gray-500">Batal</button><button type="submit" class="submit-button bg-blue-600">Update</button></div></form></div>`; m.innerHTML = f; showModal('entry-form-modal'); };
+        
+        const fetchAndDisplaySupervisi = () => {
+            const contentDiv = document.getElementById('supervisi-content');
+            contentDiv.innerHTML = loaderHTML;
+            fetch(`${SCRIPT_URL}?action=getAllAdm`)
+                .then(r => r.json())
+                .then(res => {
+                    if (!res.success) throw new Error(res.message);
+                    allAdmData = res.data;
+                    renderSupervisiTable(allAdmData);
+                })
+                .catch(err => showNotificationModal('Error', err.message, 'error'));
+        };
+
+        const renderSupervisiTable = (data) => {
+            const contentDiv = document.getElementById('supervisi-content');
+            if (data.length === 0) {
+                contentDiv.innerHTML = '<p class="text-center p-4">Tidak ada data administrasi ditemukan.</p>';
+                return;
+            }
+            const headers = ['Kelas', 'RPP', 'Program', 'Silabus', 'Bank Soal', 'ADM Kelas', 'Ekstrakurikuler', 'Aksi'];
+            const items = ['RPP', 'PROGRAM', 'SILABUS', 'BANK_SOAL', 'ADM_KELAS', 'EKSTRAKURIKULER'];
+
+            let tableHTML = '<table class="rekap-table"><thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
+            
+            data.forEach(row => {
+                const rowData = JSON.stringify(row).replace(/"/g, '&quot;');
+                tableHTML += `<tr data-row='${rowData}'>`;
+                tableHTML += `<td>${row['KELAS'] || '-'}</td>`;
+
+                items.forEach(item => {
+                    const status = (row[`${item}_STATUS`] || '').toLowerCase();
+                    const statusClass = status === 'disetujui' ? 'status-disetujui' : (status === 'diperbaiki' ? 'status-diperbaiki' : (status === 'ditolak' ? 'status-ditolak' : ''));
+                    tableHTML += `<td><span class="status-badge ${statusClass}">${row[`${item}_STATUS`] || 'Belum Ada'}</span></td>`;
+                });
+                
+                tableHTML += `<td class="whitespace-nowrap"><button class="action-btn edit text-blue-600" title="Edit Supervisi"><i class="fas fa-edit"></i> Supervisi</button></td>`;
+                tableHTML += '</tr>';
+            });
+
+            tableHTML += '</tbody></table>';
+            contentDiv.innerHTML = tableHTML;
+        };
+        
+        const openSupervisiForm = (rowData) => {
+            const form = document.getElementById('supervisiForm');
+            form.reset();
+            form.querySelector('[name="KELAS"]').value = rowData.KELAS;
+
+            const container = document.getElementById('supervisi-form-items');
+            container.innerHTML = '';
+            const items = ['RPP', 'PROGRAM', 'SILABUS', 'BANK_SOAL', 'ADM_KELAS', 'EKSTRAKURIKULER'];
+            
+            items.forEach(item => {
+                const itemHTML = `
+                <div class="p-4 border border-gray-300 rounded-lg bg-white/50">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">${item.replace('_', ' ')}</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
+                        <div class="input-group">
+                            <input type="text" name="${item}_LINK" class="input-field" readonly>
+                            <label class="input-label">Link (dari Guru)</label>
+                        </div>
+                        <div class="input-group">
+                            <select name="${item}_STATUS" class="input-field">
+                                <option value="">Pilih Status</option>
+                                <option value="Disetujui">Disetujui</option>
+                                <option value="Diperbaiki">Diperbaiki</option>
+                                <option value="Ditolak">Ditolak</option>
+                            </select>
+                        </div>
+                        <div class="lg:col-span-2 input-group">
+                            <textarea name="${item}_KOMENTAR" rows="2" class="input-field"></textarea>
+                            <label class="input-label">Komentar Supervisi</label>
+                        </div>
+                    </div>
+                </div>`;
+                container.insertAdjacentHTML('beforeend', itemHTML);
+                form.querySelector(`[name="${item}_LINK"]`).value = rowData[`${item}_LINK`] || '';
+                form.querySelector(`[name="${item}_STATUS"]`).value = rowData[`${item}_STATUS`] || '';
+                form.querySelector(`[name="${item}_KOMENTAR"]`).value = rowData[`${item}_KOMENTAR`] || '';
+            });
+
+            const supervisiFields = ['TANGGAL', 'RPP', 'DOKUMENTASI', 'NILAI', 'KOMENTAR'];
+            supervisiFields.forEach(field => {
+                const input = form.querySelector(`[name="SUPERVISI_${field}"]`);
+                if (input) input.value = rowData[`SUPERVISI_${field}`] || '';
+            });
+
+            document.getElementById('supervisi-modal-title').textContent = `Edit Supervisi Kelas ${rowData.KELAS}`;
+            showModal('supervisi-form-modal');
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const u = sessionStorage.getItem('adminData'); if (u) { showMainApp(JSON.parse(u)); } else { showLogin(); }
+            const today = getLocalDateString(new Date());
+            ['home', 'jurnal', 'piket'].forEach(p => { 
+                const end = document.getElementById(`${p}-endDate`); if(end) end.value = today;
+                const start = document.getElementById(`${p}-startDate`); if(start) {
+                    if (p === 'home') { start.value = today; } else { const d = new Date(); d.setDate(new Date().getDate() - 30); start.value = getLocalDateString(d); }
+                }
+            });
+            document.body.addEventListener('click', e => { const b = e.target.closest('.submit-button'); if (b&&!b.disabled) { const r=b.getBoundingClientRect(),s=document.createElement('span');s.classList.add('ripple');s.style.left=`${e.clientX-r.left}px`;s.style.top=`${e.clientY-r.top}px`;b.appendChild(s);setTimeout(()=>s.remove(),600)} });
+            document.getElementById('notification-close-button').addEventListener('click', () => hideModal('notification-modal'));
+        });
+
+        loginForm.addEventListener('submit', e => { e.preventDefault(); const u = document.getElementById('username').value, n = document.getElementById('nip').value, b = document.getElementById('loginButton'), t = document.getElementById('login-button-text'); b.disabled = true; t.innerHTML = `<div class="loader"></div>`; fetch(`${SCRIPT_URL}?action=login&from=admin&username=${encodeURIComponent(u)}&nip=${encodeURIComponent(n)}`).then(r=>r.json()).then(d=>{ if (d.success&&d.user.Role&&d.user.Role.toLowerCase()==='admin'){sessionStorage.setItem('adminData', JSON.stringify(d.user)); showMainApp(d.user);} else {throw new Error(d.message||'Login gagal.')}}).catch(err=>showNotificationModal('Login Gagal',err.message,'error')).finally(()=>{b.disabled=false;t.textContent='Login'}); });
+        logoutButton.addEventListener('click', () => { sessionStorage.removeItem('adminData'); window.location.reload(); });
+        
+        document.querySelector('nav').addEventListener('click', e => { 
+            const b = e.target.closest('.nav-button'); if(!b) return; 
+            const v = b.dataset.view; 
+            showView(v); 
+            if(v === 'users-view' && allUsersData.length === 0) fetchAndDisplayUsers(); 
+            if(v === 'jurnal-view' && initialJurnalDataForFilter.length === 0) { fetch(`${SCRIPT_URL}?action=getAllJurnal&startDate=&endDate=&namaGuru=all&kelas=all`).then(r => r.json()).then(res => { if (!res.success) throw new Error(res.message); initialJurnalDataForFilter = res.data; allJurnalData = res.data; populateTeacherFilter(initialJurnalDataForFilter); populateClassFilter(initialJurnalDataForFilter); renderJurnalTable(allJurnalData); }).catch(err => showNotificationModal('Error', err.message, 'error')); } 
+            if(v === 'piket-view' && allPiketData.length === 0) fetchAndDisplayPiket(); 
+            if(v === 'supervisi-view' && allAdmData.length === 0) fetchAndDisplaySupervisi();
+        });
+        
+        document.getElementById('home-filterButton').addEventListener('click', handleHomeFilter);
+        document.getElementById('home-view').addEventListener('click', e => { const title = e.target.closest('.accordion-title'); if (!title) return; const targetId = title.dataset.target; const content = document.getElementById(targetId); if (!content) return; if (content.style.display === 'block') { content.style.display = 'none'; title.classList.remove('active'); } else { if (!homeDataCache) { showNotificationModal('Info', 'Silakan klik tombol "Tampilkan Data" terlebih dahulu.', 'info'); return; } content.innerHTML = loaderHTML; setTimeout(() => { if (targetId === 'attendance-table-content') renderAttendanceTable(homeDataCache, content); else if (targetId === 'religion-table-content') renderReligionTable(homeDataCache, content); else if (targetId === 'social-table-content') renderSocialTable(homeDataCache, content); content.style.display = 'block'; title.classList.add('active'); }, 200); } });
+        document.getElementById('charts-container').addEventListener('click', e => { const wrapper = e.target.closest('[data-kelas]'); if (!wrapper) return; const kelas = wrapper.dataset.kelas; const kelasData = homeDataCache.find(k => k.KELAS === kelas); if (kelasData) { showEnlargedChart(kelasData); } });
+        
+        document.getElementById('addUserButton').addEventListener('click', () => openUserForm());
+        userForm.addEventListener('submit', e => { e.preventDefault(); const btn = document.getElementById('saveUserButton'); btn.disabled=true; fetch(SCRIPT_URL, {method:'POST', body: new FormData(e.target)}).then(r=>r.json()).then(res => { if(!res.success) throw new Error(res.message); hideModal('user-form-modal'); fetchAndDisplayUsers(); showNotificationModal('Sukses', res.message, 'success'); }).catch(err => showNotificationModal('Error', err.message, 'error')).finally(()=>btn.disabled=false); });
+        document.getElementById('jurnal-filterButton').addEventListener('click', fetchAndDisplayJurnal);
+        document.getElementById('jurnal-printPdfButton').addEventListener('click', () => generatePdf('jurnal'));
+        document.getElementById('piket-filterButton').addEventListener('click', fetchAndDisplayPiket);
+        document.getElementById('piket-printPdfButton').addEventListener('click', () => generatePdf('piket'));
+
+        document.body.addEventListener('click', e => {
+            if (e.target.closest('.modal-close-button') || e.target.closest('.modal-cancel-button')) {
+                const m = e.target.closest('.modal-base');
+                if (m) {
+                    hideModal(m.id);
+                    if (m.id === 'chart-modal' && enlargedChartInstance) {
+                        enlargedChartInstance.destroy();
+                        enlargedChartInstance = null;
+                    }
+                }
+            }
+            const vc = e.target.closest('.view-more-cell');
+            if (vc) { document.getElementById('modal-title').textContent = `Detail: ${vc.dataset.title}`; document.getElementById('modal-content').textContent = decodeURIComponent(vc.dataset.fulltext); showModal('full-text-modal'); }
+            
+            const row = e.target.closest('tr');
+            if(!row || !row.dataset.row) return;
+
+            const rowData = JSON.parse(row.dataset.row);
+
+            if(e.target.closest('#supervisi-content .action-btn.edit')) { openSupervisiForm(rowData); }
+            if(e.target.closest('#users-content .action-btn.edit')) { openUserForm(rowData); }
+            if(e.target.closest('#jurnal-content .action-btn.edit, #piket-content .action-btn.edit')) { openEntryForm(rowData, row.dataset.type); }
+
+            if(e.target.closest('.action-btn.delete')) {
+                 const m = document.getElementById('delete-confirm-modal');
+                 let p={};
+                 if (row.closest('#users-content')) {
+                    p = { action: 'deleteUser', sheetName: 'ADMIN', NIP: rowData.NIP };
+                 } else { 
+                    const timestampDate = new Date(rowData.Timestamp); 
+                    if (isNaN(timestampDate.getTime())) { showNotificationModal('Error', 'Timestamp tidak valid, data tidak bisa dihapus.', 'error'); return; }
+                    p = { action: 'delete', sheetName: row.dataset.type === 'jurnal' ? 'GURU' : 'PIKET', timestamp: timestampDate.toISOString() }; 
+                 }
+                 m.dataset.params = JSON.stringify(p); 
+                 showModal('delete-confirm-modal');
+            }
+        });
+        
+        document.getElementById('modal-confirm-delete').addEventListener('click', e => { const p = JSON.parse(e.target.closest('#delete-confirm-modal').dataset.params), fd = new FormData(); for (const k in p) fd.append(k, p[k]); fetch(SCRIPT_URL, {method: 'POST', body: fd}).then(r=>r.json()).then(res => { if (!res.success) throw new Error(res.message); hideModal('delete-confirm-modal'); if (p.sheetName === 'ADMIN') fetchAndDisplayUsers(); if (p.sheetName === 'GURU') { initialJurnalDataForFilter = []; document.getElementById('jurnal-teacherFilter').value = 'all'; document.getElementById('jurnal-classFilter').value = 'all'; fetchAndDisplayJurnal(); } if (p.sheetName === 'PIKET') fetchAndDisplayPiket(); showNotificationModal('Sukses', res.message, 'success'); }).catch(err => showNotificationModal('Error', err.message, 'error')); });
+        document.getElementById('entry-form-modal').addEventListener('submit', e => { if (e.target.id !== 'entryForm') return; e.preventDefault(); fetch(SCRIPT_URL, {method:'POST', body: new FormData(e.target)}).then(r=>r.json()).then(res => { if (!res.success) throw new Error(res.message); const s = e.target.querySelector('[name="sheetName"]').value; hideModal('entry-form-modal'); if (s === 'GURU') { initialJurnalDataForFilter = []; document.getElementById('jurnal-teacherFilter').value = 'all'; document.getElementById('jurnal-classFilter').value = 'all'; fetchAndDisplayJurnal(); } else { fetchAndDisplayPiket(); } showNotificationModal('Sukses', res.message, 'success'); }).catch(err => showNotificationModal('Error', err.message, 'error')); });
+        
+        supervisiForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const btn = document.getElementById('saveSupervisiButton');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loader"></div>';
+
+            fetch(SCRIPT_URL, { method: 'POST', body: new FormData(e.target) })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        hideModal('supervisi-form-modal');
+                        showNotificationModal('Sukses', data.message, 'success');
+                        fetchAndDisplaySupervisi();
+                    } else { throw new Error(data.message); }
+                })
+                .catch(err => showNotificationModal('Error', err.message, 'error'))
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.textContent = 'Simpan';
+                });
+        });
+        
+    </script>
+
+    <script>
+      function renderAttendanceCharts(data) {
+        const container = document.getElementById('charts-container');
+        container.innerHTML = ''; 
+
+        if (!data || data.length === 0) {
+          container.innerHTML = '<p class="col-span-full text-center text-gray-600 p-4">Data kehadiran tidak tersedia.</p>';
+          return;
+        }
+
+        data.forEach(kelasData => {
+          const kelas = kelasData.KELAS || 'Tanpa Nama';
+          const chartWrapper = document.createElement('div');
+          chartWrapper.className = 'bg-white/30 p-2 rounded-lg shadow-sm transition-transform hover:scale-105';
+          chartWrapper.style.cursor = 'pointer';
+          chartWrapper.dataset.kelas = kelas;
+
+          const title = document.createElement('h4');
+          title.className = 'text-center font-bold text-gray-800 mb-1 text-xs';
+          title.textContent = `Kelas ${kelas}`;
+          
+          const canvas = document.createElement('canvas');
+          chartWrapper.appendChild(title);
+          chartWrapper.appendChild(canvas);
+          container.appendChild(chartWrapper);
+          
+          const { hadir, sakit, izin, alfa, jml } = calculateAttendance(kelasData);
+          
+          new Chart(canvas, {
+            type: 'doughnut',
+            data: {
+              labels: ['Hadir', 'Sakit', 'Izin', 'Alpha'],
+              datasets: [{ label: 'Siswa', data: [hadir, sakit, izin, alfa], backgroundColor: ['rgba(34, 197, 94, 0.7)', 'rgba(250, 204, 21, 0.7)', 'rgba(59, 130, 246, 0.7)', 'rgba(239, 68, 68, 0.7)'], borderColor: ['rgba(22, 163, 74, 1)', 'rgba(234, 179, 8, 1)', 'rgba(37, 99, 235, 1)', 'rgba(220, 38, 38, 1)'], borderWidth: 1 }]
+            },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `${c.label}: ${c.raw} siswa (${jml > 0 ? ((c.raw/jml)*100).toFixed(1) : 0}%)` } } } }
+          });
+        });
+      }
+
+      function showEnlargedChart(kelasData) {
+        const modalTitle = document.getElementById('chart-modal-title');
+        const canvas = document.getElementById('enlarged-chart-canvas');
+        modalTitle.textContent = `Grafik Kehadiran Kelas ${kelasData.KELAS}`;
+
+        if (enlargedChartInstance) {
+            enlargedChartInstance.destroy();
+        }
+        
+        const { hadir, sakit, izin, alfa, jml } = calculateAttendance(kelasData);
+        
+        enlargedChartInstance = new Chart(canvas, {
+            type: 'doughnut',
+            data: {
+                labels: ['Hadir', 'Sakit', 'Izin', 'Alpha'],
+                datasets: [{ label: 'Siswa', data: [hadir, sakit, izin, alfa], backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(250, 204, 21, 0.8)', 'rgba(59, 130, 246, 0.8)', 'rgba(239, 68, 68, 0.8)'], borderColor: ['#ffffff'], borderWidth: 2 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { font: { size: 14 }, padding: 10 } },
+                    tooltip: { callbacks: { label: (c) => `${c.label}: ${c.raw} siswa (${jml > 0 ? ((c.raw/jml)*100).toFixed(1) : 0}%)` } },
+                    title: { display: true, text: `Total Siswa: ${jml}`, font: { size: 16 }, padding: { top: 10, bottom: 20 } }
+                }
+            }
+        });
+
+        showModal('chart-modal');
+      }
+
+      function calculateAttendance(kelasData) {
+        const jml = Number(kelasData.JML) || 0;
+        const sakit = Number(kelasData.sakit) || 0;
+        const izin = Number(kelasData.izin) || 0;
+        const alfa = Number(kelasData.alfa) || 0;
+        const hadir = Math.max(0, jml - sakit - izin - alfa);
+        return { hadir, sakit, izin, alfa, jml };
+      }
+
+      function calculateReligionData(data) {
+          const totals = { ISLAM: 0, KRISTEN: 0, KATHOLIK: 0, HINDU: 0, BUDHA: 0, KONGHUCU: 0 };
+          (data || []).forEach(row => {
+              Object.keys(totals).forEach(key => {
+                  totals[key] += Number(row[key]) || 0;
+              });
+          });
+          return {
+              labels: Object.keys(totals),
+              values: Object.values(totals)
+          };
+      }
+
+      function renderReligionChart(data) {
+          const canvas = document.getElementById('religion-chart-canvas');
+          if (religionChartInstance) {
+              religionChartInstance.destroy();
+          }
+          const religionData = calculateReligionData(data);
+          religionChartInstance = new Chart(canvas, {
+              type: 'bar',
+              data: {
+                  labels: religionData.labels,
+                  datasets: [{
+                      label: 'Jumlah Siswa',
+                      data: religionData.values,
+                      backgroundColor: ['rgba(75, 192, 192, 0.6)','rgba(255, 205, 86, 0.6)','rgba(255, 99, 132, 0.6)','rgba(54, 162, 235, 0.6)','rgba(153, 102, 255, 0.6)','rgba(255, 159, 64, 0.6)'],
+                      borderColor: '#ffffff',
+                      borderWidth: 1
+                  }]
+              },
+              options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+          });
+      }
+
+      function calculateSocialData(data) {
+          const totals = { KJP: 0, Yatim: 0, Piatu: 0 };
+          (data || []).forEach(row => {
+              totals.KJP += Number(row['KJP']) || 0;
+              totals.Yatim += Number(row['YATIM']) || 0;
+              totals.Piatu += Number(row['PIATU']) || 0;
+          });
+          return {
+              labels: ['Penerima KJP', 'Yatim', 'Piatu'],
+              values: [totals.KJP, totals.Yatim, totals.Piatu]
+          };
+      }
+
+      function renderSocialChart(data) {
+          const canvas = document.getElementById('social-chart-canvas');
+          if (socialChartInstance) {
+              socialChartInstance.destroy();
+          }
+          const socialData = calculateSocialData(data);
+          const total = socialData.values.reduce((a, b) => a + b, 0);
+
+          socialChartInstance = new Chart(canvas, {
+              type: 'doughnut',
+              data: {
+                  labels: socialData.labels,
+                  datasets: [{
+                      label: 'Jumlah Siswa',
+                      data: socialData.values,
+                      backgroundColor: ['rgba(59, 130, 246, 0.7)', 'rgba(239, 68, 68, 0.7)', 'rgba(250, 204, 21, 0.7)'],
+                      borderColor: '#ffffff',
+                      borderWidth: 2
+                  }]
+              },
+              options: {
+                  responsive: true, maintainAspectRatio: false,
+                  plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: (c) => `${c.label}: ${c.raw} siswa` } }, title: { display: true, text: `Total Data Sosial: ${total}`, font: { size: 14 } } }
+              }
+          });
+      }
+    </script>
+</body>
+</html>
