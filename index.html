@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         html, body {
             height: 100%;
@@ -63,9 +64,30 @@
             height: 40px;
             animation: spin 1s linear infinite;
         }
+         .loader-small {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #fff;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: spin 1s linear infinite;
+        }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        /* Style untuk teks yang bisa di-klik */
+        .view-more-cell {
+            cursor: pointer;
+            color: #60a5fa; /* Tailwind's text-blue-400 */
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            transition: color 0.2s;
+        }
+        .view-more-cell:hover {
+            color: #93c5fd; /* Tailwind's text-blue-300 */
         }
     </style>
 </head>
@@ -137,15 +159,19 @@
                     <div class="text-purple-400 mb-4"> <i class="fa-solid fa-shield-heart fa-3x"></i></div>
                     <h3 class="text-2xl font-semibold text-white mb-2">JURNAL 7KAIH</h3>
                     <p class="text-gray-400 flex-grow">Jurnal Pembiasaan 7 Kebiasaan Anak Indonesia Hebat</p>
-					<a href="https://anaksdhebat.github.io/7ptm05/Analisis.html" class="mt-auto w-full text-center bg-green-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-red-700 transition-colors">Data</a>					
-                    <a href="https://anaksdhebat.github.io/7ptm05" class="mt-auto w-full text-center bg-purple-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-purple-700 transition-colors">Cek dan Input</a>
+					<a href="https://anaksdhebat.github.io/7ptm01/Analisis.html" class="mt-auto w-full text-center bg-green-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-red-700 transition-colors">Data</a>
+                    <a href="https://anaksdhebat.github.io/7ptm01" class="mt-auto w-full text-center bg-purple-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-purple-700 transition-colors">Cek dan Input</a>
                 </div>
 
                 <div class="swiper-slide bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 flex flex-col items-center text-center">
                     <div class="text-emerald-400 mb-4"><i class="fa-solid fa-calendar-days fa-3x"></i></div>
-                    <h3 class="text-2xl font-semibold text-white mb-2">INPUT PIKET</h3>
-                    <p class="text-gray-400 flex-grow">Input piket guru dan staf untuk hari ini.</p>
-                    <a href="Piket" class="mt-auto w-full text-center bg-emerald-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-emerald-700 transition-colors">Piket</a>
+                    <h3 class="text-2xl font-semibold text-white mb-2">GURU & PIKET</h3>
+                    <p class="text-gray-400 flex-grow">Akses Piket, dan Grafik Kehadiran Siswa.</p>
+                    <div class="mt-auto w-full flex flex-col space-y-2">
+                        <a href="Piket" class="w-full text-center bg-emerald-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-emerald-700 transition-colors">Input Piket</a>
+                        <button onclick="openPublicPiketModal()" class="w-full text-center bg-sky-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-sky-700 transition-colors">Lihat Rekap Piket</button>
+                        <button onclick="openGrafikModal()" class="w-full text-center bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors">Grafik Kehadiran</button>
+                    </div>
                 </div>
 
                 <div class="swiper-slide bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 flex flex-col items-center text-center">
@@ -163,8 +189,8 @@
         </main>
     </div>
 
-    <div id="modal-login" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
-        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-sm w-full p-6" onclick="event.stopPropagation()">
+    <div id="modal-login" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="handleBackdropClick(event)">
+        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-sm w-full p-6">
             <h2 class="text-2xl font-bold mb-4 text-center">Login Admin</h2>
             <div id="login-error" class="hidden bg-red-500 text-white text-sm p-2 rounded-md mb-4"></div>
             <form onsubmit="event.preventDefault(); handleAdminLogin();">
@@ -180,9 +206,8 @@
             </form>
         </div>
     </div>
-
-    <div id="modal-visi-misi" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
-        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-4xl w-full p-6" onclick="event.stopPropagation()">
+    <div id="modal-visi-misi" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="handleBackdropClick(event)">
+        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-4xl w-full p-6">
             <h2 class="text-2xl font-bold mb-4 border-b border-gray-600 pb-2">Visi & Misi Sekolah</h2>
             <div class="max-h-[60vh] overflow-y-auto pr-2">
                 <h3 class="text-xl font-semibold text-cyan-400 mt-2">Visi</h3>
@@ -195,56 +220,55 @@
             <button class="mt-6 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-visi-misi')">Tutup</button>
         </div>
     </div>
-    
-<div id="modal-pengumuman-1" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
-    <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
-        <h2 id="judul-pengumuman-1" class="text-2xl font-bold mb-2 p-6 pb-0"></h2>
-        <div class="flex-1 overflow-y-auto p-6 pt-4">
-            <img id="img-pengumuman-1" src="" class="w-full h-auto rounded-md my-4 hidden">
-            <p id="isi-pengumuman-1" class="text-gray-300 whitespace-pre-wrap"></p>
-            <a id="link-pengumuman-1" href="#" target="_blank" class="hidden mt-4 text-cyan-400 hover:underline block">Lihat Dokumen</a>
-        </div>
-        <div class="p-6 pt-0">
-            <button class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-pengumuman-1')">Tutup</button>
+    <div id="modal-pengumuman-1" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="handleBackdropClick(event)">
+        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+            <h2 id="judul-pengumuman-1" class="text-2xl font-bold p-6 pb-2"></h2>
+            <div class="flex-1 overflow-y-auto p-6 pt-2">
+                <img id="img-pengumuman-1" src="" class="w-full h-auto rounded-md my-2 hidden">
+                <p id="isi-pengumuman-1" class="text-gray-300 whitespace-pre-wrap"></p>
+                <a id="link-pengumuman-1" href="#" target="_blank" class="hidden mt-4 text-cyan-400 hover:underline block">Lihat Dokumen</a>
+            </div>
+            <div class="p-6 pt-0">
+                <button class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-pengumuman-1')">Tutup</button>
+            </div>
         </div>
     </div>
-</div>
-
-    <div id="modal-pengumuman-2" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
-		<div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
-            <h2 id="judul-pengumuman-2" class="text-2xl font-bold mb-4 flex-shrink-0"></h2>
-            <div class="overflow-y-auto pr-2">
-                <img id="img-pengumuman-2" src="" class="w-full h-auto rounded-md my-4 hidden">
+    <div id="modal-pengumuman-2" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="handleBackdropClick(event)">
+		<div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+            <h2 id="judul-pengumuman-2" class="text-2xl font-bold p-6 pb-2"></h2>
+            <div class="overflow-y-auto p-6 pt-2">
+                <img id="img-pengumuman-2" src="" class="w-full h-auto rounded-md my-2 hidden">
                 <p id="isi-pengumuman-2" class="text-gray-300 whitespace-pre-wrap"></p>
                 <a id="link-pengumuman-2" href="#" target="_blank" class="hidden mt-4 text-cyan-400 hover:underline">Lihat Dokumen</a>
             </div>
-            <button class="mt-6 flex-shrink-0 w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-pengumuman-2')">Tutup</button>
+             <div class="p-6 pt-0">
+                <button class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-pengumuman-2')">Tutup</button>
+            </div>
         </div>
     </div>
-
-    <div id="modal-pengumuman-3" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
-		<div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
-            <h2 id="judul-pengumuman-3" class="text-2xl font-bold mb-4 flex-shrink-0"></h2>
-            <div class="overflow-y-auto pr-2">
-                <img id="img-pengumuman-3" src="" class="w-full h-auto rounded-md my-4 hidden">
+    <div id="modal-pengumuman-3" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="handleBackdropClick(event)">
+		<div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+            <h2 id="judul-pengumuman-3" class="text-2xl font-bold p-6 pb-2"></h2>
+            <div class="overflow-y-auto p-6 pt-2">
+                <img id="img-pengumuman-3" src="" class="w-full h-auto rounded-md my-2 hidden">
                 <p id="isi-pengumuman-3" class="text-gray-300 whitespace-pre-wrap"></p>
                 <a id="link-pengumuman-3" href="#" target="_blank" class="hidden mt-4 text-cyan-400 hover:underline">Lihat Dokumen</a>
             </div>
-            <button class="mt-6 flex-shrink-0 w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-pengumuman-3')">Tutup</button>
+            <div class="p-6 pt-0">
+                <button class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-pengumuman-3')">Tutup</button>
+            </div>
         </div>
     </div>
-    
-    <div id="modal-kepsek" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
-         <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-2xl w-full p-6" onclick="event.stopPropagation()">
+    <div id="modal-kepsek" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="handleBackdropClick(event)">
+         <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-2xl w-full p-6">
             <h2 id="nama-kepsek-modal" class="text-2xl font-bold mb-2"></h2>
             <p id="nip-kepsek-modal" class="text-sm text-gray-400 mb-4"></p>
             <div id="sambutan-kepsek-text" class="max-h-[60vh] overflow-y-auto pr-2 text-gray-300 whitespace-pre-wrap"></div>
             <button class="mt-6 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded" onclick="closeModal('modal-kepsek')">Tutup</button>
         </div>
     </div>
-    
-    <div id="modal-edit" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="closeAllModals()">
-        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-4xl w-full" onclick="event.stopPropagation()">
+    <div id="modal-edit" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="handleBackdropClick(event)">
+        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-4xl w-full">
             <form id="edit-form" onsubmit="event.preventDefault(); handleSaveChanges();" class="w-full">
                 <h2 class="text-2xl font-bold p-6 border-b border-gray-700">Edit Data Portal</h2>
                 <div class="p-6 overflow-y-auto modal-body grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -302,12 +326,57 @@
         </div>
     </div>
 
+    <div id="modal-piket" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="handleBackdropClick(event)">
+        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-5xl w-full flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b border-gray-700 flex justify-between items-center">
+                 <h2 class="text-xl font-bold">Rekap Piket Guru</h2>
+                 <button class="text-gray-400 hover:text-white" onclick="closeModal('modal-piket')"><i class="fas fa-times fa-lg"></i></button>
+            </div>
+            <div class="p-4 bg-gray-900/50 flex flex-wrap items-end justify-center gap-4">
+                <div class="flex-grow min-w-[150px]"><label for="piket-startDate" class="text-sm font-medium text-gray-300">Dari Tanggal</label><input type="date" id="piket-startDate" class="w-full mt-1 p-2 border bg-gray-700 border-gray-600 rounded-lg text-white"></div>
+                <div class="flex-grow min-w-[150px]"><label for="piket-endDate" class="text-sm font-medium text-gray-300">Sampai Tanggal</label><input type="date" id="piket-endDate" class="w-full mt-1 p-2 border bg-gray-700 border-gray-600 rounded-lg text-white"></div>
+                <button id="piket-filter-button" onclick="fetchAndDisplayPublicPiket()" class="w-full sm:w-auto text-white bg-sky-600 hover:bg-sky-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center justify-center">Tampilkan</button>
+            </div>
+            <div id="piket-content" class="p-5 overflow-y-auto">
+                </div>
+        </div>
+    </div>
+
+    <div id="modal-grafik" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="handleBackdropClick(event)">
+        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-6xl w-full flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b border-gray-700 flex justify-between items-center">
+                 <h2 class="text-xl font-bold">Grafik Kehadiran Siswa per Kelas</h2>
+                 <button class="text-gray-400 hover:text-white" onclick="closeModal('modal-grafik'); attendanceChartInstances.forEach(c => c.destroy());"><i class="fas fa-times fa-lg"></i></button>
+            </div>
+            <div class="p-4 bg-gray-900/50 flex flex-wrap items-end justify-center gap-4">
+                <div class="flex-grow min-w-[150px]"><label for="grafik-startDate" class="text-sm font-medium text-gray-300">Dari Tanggal</label><input type="date" id="grafik-startDate" class="w-full mt-1 p-2 border bg-gray-700 border-gray-600 rounded-lg text-white"></div>
+                <div class="flex-grow min-w-[150px]"><label for="grafik-endDate" class="text-sm font-medium text-gray-300">Sampai Tanggal</label><input type="date" id="grafik-endDate" class="w-full mt-1 p-2 border bg-gray-700 border-gray-600 rounded-lg text-white"></div>
+                <button id="grafik-filter-button" onclick="handleGrafikFilter()" class="w-full sm:w-auto text-white bg-indigo-600 hover:bg-indigo-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center justify-center">Tampilkan Grafik</button>
+            </div>
+            <div id="grafik-container" class="p-6 overflow-y-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                </div>
+        </div>
+    </div>
+    
+    <div id="full-text-modal" class="modal fixed inset-0 z-[60] hidden items-center justify-center bg-black bg-opacity-70 p-4" onclick="handleBackdropClick(event)">
+        <div class="bg-gray-800 text-white rounded-lg shadow-xl max-w-2xl w-full flex flex-col max-h-[80vh]">
+            <div class="p-5 border-b border-gray-700 flex justify-between items-center">
+                <h2 id="modal-full-text-title" class="text-xl font-bold">Detail</h2>
+                <button class="text-gray-400 hover:text-white" onclick="closeModal('full-text-modal')"><i class="fas fa-times fa-lg"></i></button>
+            </div>
+            <div id="modal-full-text-content" class="p-6 overflow-y-auto whitespace-pre-wrap text-gray-300">
+                </div>
+        </div>
+    </div>
+
+
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygW-ntF-gzYfv_amlzu-XPzbgmQwIdEXA0a19xZoXW8J2Kom1iUcZbzglgOjeEC2KR/exec";
         let isAdminLoggedIn = false;
         let portalDataCache = null;
+        let attendanceChartInstances = [];
 
         window.onload = () => {
             var swiper = new Swiper(".mySwiper", {
@@ -327,6 +396,18 @@
                     nextEl: ".swiper-button-next",
                     prevEl: ".swiper-button-prev",
                 },
+            });
+
+            // Event listener untuk menangani klik pada sel 'view-more'
+            document.body.addEventListener('click', (e) => {
+                const viewMoreCell = e.target.closest('.view-more-cell');
+                if (viewMoreCell) {
+                    const title = viewMoreCell.dataset.title;
+                    const fullText = decodeURIComponent(viewMoreCell.dataset.fulltext);
+                    document.getElementById('modal-full-text-title').textContent = `Detail: ${title}`;
+                    document.getElementById('modal-full-text-content').textContent = fullText;
+                    openModal('full-text-modal');
+                }
             });
 
             fetchPortalData();
@@ -354,7 +435,6 @@
         }
 
         function populateData(data) {
-            // Data Sekolah
             document.getElementById('school-name').textContent = data.schoolInfo['Nama Sekolah'];
             document.getElementById('logo-sekolah').src = data.schoolInfo['Logo'];
             document.getElementById('foto-kepsek').src = data.schoolInfo['Foto Kepala Sekolah'];
@@ -362,29 +442,21 @@
             document.getElementById('nama-kepsek-modal').textContent = `Sambutan ${data.schoolInfo['Nama Kepala Sekolah']}`;
             document.getElementById('nip-kepsek-modal').textContent = `NIP. ${data.schoolInfo['NIP Kepala Sekolah']}`;
             document.getElementById('sambutan-kepsek-text').textContent = data.schoolInfo['Sambutan'];
-
-            // Links
             document.getElementById('whatsapp-link').href = `https://wa.me/${data.schoolInfo['Phone']}`;
             document.getElementById('facebook-link').href = data.schoolInfo['Fasebook'];
             document.getElementById('instagram-link').href = data.schoolInfo['Instagram'];
-
-            // Visi, Misi, Tujuan
             document.getElementById('visi-text').textContent = data.schoolInfo['Visi'];
             document.getElementById('misi-text').innerHTML = data.schoolInfo['Misi'].split('\n').map(item => `<p>${item}</p>`).join('');
             document.getElementById('tujuan-text').innerHTML = data.schoolInfo['Tujuan'].split('\n').map(item => `<p>${item}</p>`).join('');
 
-
-            // Pengumuman
             data.announcements.forEach((ann, index) => {
                 const i = index + 1;
                 document.getElementById(`btn-pengumuman-${i}`).textContent = ann.title || `Pengumuman ${i}`;
                 document.getElementById(`judul-pengumuman-${i}`).textContent = ann.title;
                 document.getElementById(`isi-pengumuman-${i}`).textContent = ann.content;
-                
                 const imgEl = document.getElementById(`img-pengumuman-${i}`);
                 if (ann.imageUrl) { imgEl.src = ann.imageUrl; imgEl.classList.remove('hidden');} 
                 else { imgEl.classList.add('hidden'); }
-                
                 const linkEl = document.getElementById(`link-pengumuman-${i}`);
                 if(ann.docUrl) { linkEl.href = ann.docUrl; linkEl.classList.remove('hidden');}
                 else { linkEl.classList.add('hidden'); }
@@ -394,7 +466,6 @@
         
         function populateEditForm(data){
             if(!data) return;
-            // School Info
             document.getElementById('edit-nama-sekolah').value = data.schoolInfo['Nama Sekolah'];
             document.getElementById('edit-npsn').value = data.schoolInfo['NPSN'];
             document.getElementById('edit-alamat').value = data.schoolInfo['Alamat Sekolah'];
@@ -410,7 +481,6 @@
             document.getElementById('edit-tujuan').value = data.schoolInfo['Tujuan'];
             document.getElementById('edit-sambutan').value = data.schoolInfo['Sambutan'];
             
-            // Announcements
              data.announcements.forEach((ann, index) => {
                 const i = index + 1;
                 document.getElementById(`edit-judul-${i}`).value = ann.title || '';
@@ -437,11 +507,21 @@
             }
         }
         
+        function handleBackdropClick(event) {
+            if (event.target === event.currentTarget) {
+                closeAllModals();
+            }
+        }
+
         function closeAllModals() {
             document.querySelectorAll('.modal').forEach(modal => {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
             });
+             if(attendanceChartInstances.length > 0) {
+                attendanceChartInstances.forEach(c => c.destroy());
+                attendanceChartInstances = [];
+            }
         }
 
         // --- Logika Admin ---
@@ -500,21 +580,14 @@
             saveButton.textContent = 'Menyimpan...';
 
             const form = document.getElementById('edit-form');
-            const formData = new FormData(form);
             const dataToPost = new FormData();
             dataToPost.append('action', 'updatePortalData');
             
-            // School Info Fields
-            const schoolInfoFields = [
-                'edit-nama-sekolah', 'edit-npsn', 'edit-alamat', 'edit-phone', 'edit-logo',
-                'edit-nama-kepsek', 'edit-nip-kepsek', 'edit-foto-kepsek', 'edit-facebook',
-                'edit-instagram', 'edit-visi', 'edit-misi', 'edit-tujuan', 'edit-sambutan'
-            ];
+            const schoolInfoFields = ['edit-nama-sekolah', 'edit-npsn', 'edit-alamat', 'edit-phone', 'edit-logo', 'edit-nama-kepsek', 'edit-nip-kepsek', 'edit-foto-kepsek', 'edit-facebook', 'edit-instagram', 'edit-visi', 'edit-misi', 'edit-tujuan', 'edit-sambutan'];
             schoolInfoFields.forEach(id => {
                  dataToPost.append(id, document.getElementById(id).value);
             });
 
-            // Announcement Fields
             for(let i = 1; i <= 3; i++){
                 dataToPost.append(`edit-judul-${i}`, document.getElementById(`edit-judul-${i}`).value);
                 dataToPost.append(`edit-isi-${i}`, document.getElementById(`edit-isi-${i}`).value);
@@ -546,21 +619,161 @@
         function showAlert(message, type = 'success') {
             const alertBox = document.getElementById('custom-alert');
             const messageP = document.getElementById('custom-alert-message');
-            
             messageP.textContent = message;
             alertBox.classList.remove('bg-green-500', 'bg-red-500', 'hidden');
-            
             if (type === 'success') {
                 alertBox.classList.add('bg-green-500');
             } else {
                 alertBox.classList.add('bg-red-500');
             }
-            
             alertBox.classList.remove('hidden');
+            setTimeout(() => { alertBox.classList.add('hidden'); }, 3000);
+        }
+        
+        // --- LOGIKA BARU UNTUK PIKET & GRAFIK ---
+
+        function openPublicPiketModal() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('piket-startDate').value = today;
+            document.getElementById('piket-endDate').value = today;
+            openModal('modal-piket');
+            fetchAndDisplayPublicPiket();
+        }
+
+        function fetchAndDisplayPublicPiket() {
+            const contentDiv = document.getElementById('piket-content');
+            const btn = document.getElementById('piket-filter-button');
+            const startDate = document.getElementById('piket-startDate').value;
+            const endDate = document.getElementById('piket-endDate').value;
+
+            contentDiv.innerHTML = '<div class="flex justify-center p-8"><div class="spinner"></div></div>';
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loader-small"></div>';
+
+            fetch(`${SCRIPT_URL}?action=getAllPiket&startDate=${startDate}&endDate=${endDate}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    renderPublicPiketTable(data.data);
+                } else {
+                    contentDiv.innerHTML = `<p class="text-center text-red-400">${data.message}</p>`;
+                }
+            }).catch(err => {
+                contentDiv.innerHTML = `<p class="text-center text-red-400">Gagal memuat data piket.</p>`;
+            }).finally(() => {
+                btn.disabled = false;
+                btn.textContent = 'Tampilkan';
+            });
+        }
+
+        function renderPublicPiketTable(data) {
+            const contentDiv = document.getElementById('piket-content');
+            if (data.length === 0) {
+                contentDiv.innerHTML = '<p class="text-center p-4">Tidak ada data piket untuk ditampilkan pada rentang tanggal ini.</p>';
+                return;
+            }
+            let tableHTML = '<div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-300">';
+            tableHTML += '<thead class="text-xs text-gray-200 uppercase bg-gray-700"><tr>';
+            const headers = ['Tanggal', 'Nama Guru', 'Kegiatan', 'Kejadian'];
+            headers.forEach(h => tableHTML += `<th scope="col" class="px-4 py-3">${h}</th>`);
+            tableHTML += '</tr></thead><tbody>';
+
+            data.forEach(row => {
+                const kegiatanText = row.Kegiatan || '-';
+                const kejadianText = row.Kejadian || '-';
+                
+                tableHTML += `<tr class="border-b border-gray-700 hover:bg-gray-700/50">
+                    <td class="px-4 py-3 whitespace-nowrap">${new Date(row.Tanggal).toLocaleDateString('id-ID')}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">${row['Nama Guru'] || '-'}</td>
+                    <td class="px-4 py-3 view-more-cell" data-title="Kegiatan" data-fulltext="${encodeURIComponent(kegiatanText)}">
+                        ${kegiatanText.substring(0, 40)}${kegiatanText.length > 40 ? '...' : ''}
+                    </td>
+                    <td class="px-4 py-3 view-more-cell" data-title="Kejadian" data-fulltext="${encodeURIComponent(kejadianText)}">
+                        ${kejadianText.substring(0, 40)}${kejadianText.length > 40 ? '...' : ''}
+                    </td>
+                </tr>`;
+            });
+
+            tableHTML += '</tbody></table></div>';
+            contentDiv.innerHTML = tableHTML;
+        }
+
+
+        function openGrafikModal() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('grafik-startDate').value = today;
+            document.getElementById('grafik-endDate').value = today;
+            document.getElementById('grafik-container').innerHTML = '<p class="col-span-full text-center text-gray-400">Silakan pilih rentang tanggal dan klik "Tampilkan Grafik".</p>';
+            openModal('modal-grafik');
+        }
+
+        function handleGrafikFilter() {
+            const container = document.getElementById('grafik-container');
+            const btn = document.getElementById('grafik-filter-button');
+            container.innerHTML = '<div class="col-span-full flex justify-center p-8"><div class="spinner"></div></div>';
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loader-small"></div>';
+
+            if(attendanceChartInstances.length > 0) {
+                attendanceChartInstances.forEach(c => c.destroy());
+                attendanceChartInstances = [];
+            }
             
-            setTimeout(() => {
-                alertBox.classList.add('hidden');
-            }, 3000);
+            const startDate = document.getElementById('grafik-startDate').value;
+            const endDate = document.getElementById('grafik-endDate').value;
+            
+            fetch(`${SCRIPT_URL}?action=getHomeData&startDate=${startDate}&endDate=${endDate}`)
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    renderGrafikCharts(result.data);
+                } else {
+                     container.innerHTML = `<p class="col-span-full text-center text-red-400">${result.message}</p>`;
+                }
+            }).catch(err => {
+                container.innerHTML = `<p class="col-span-full text-center text-red-400">Gagal memuat data grafik.</p>`;
+            }).finally(() => {
+                btn.disabled = false;
+                btn.textContent = 'Tampilkan Grafik';
+            });
+        }
+        
+        function renderGrafikCharts(data) {
+            const container = document.getElementById('grafik-container');
+            container.innerHTML = ''; 
+
+            if (!data || data.length === 0) {
+              container.innerHTML = '<p class="col-span-full text-center text-gray-400 p-4">Data kehadiran tidak tersedia untuk rentang tanggal ini.</p>';
+              return;
+            }
+
+            data.forEach(kelasData => {
+              const jml = Number(kelasData.JML) || 0;
+              const sakit = Number(kelasData.sakit) || 0;
+              const izin = Number(kelasData.izin) || 0;
+              const alfa = Number(kelasData.alfa) || 0;
+              const hadir = Math.max(0, jml - sakit - izin - alfa);
+              
+              const canvasWrapper = document.createElement('div');
+              canvasWrapper.className = 'bg-gray-900/50 p-3 rounded-lg flex flex-col items-center';
+              const title = document.createElement('h4');
+              title.className = 'text-center font-semibold text-white mb-2 text-sm';
+              title.textContent = `Kelas ${kelasData.KELAS}`;
+              const canvas = document.createElement('canvas');
+              canvasWrapper.appendChild(title);
+              canvasWrapper.appendChild(canvas);
+              container.appendChild(canvasWrapper);
+              
+              const chart = new Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                  labels: ['Hadir', 'Sakit', 'Izin', 'Alpha'],
+                  datasets: [{ label: 'Siswa', data: [hadir, sakit, izin, alfa], backgroundColor: ['#10B981', '#F59E0B', '#3B82F6', '#EF4444'], borderColor: '#1f2937', borderWidth: 2 }]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => ` ${c.label}: ${c.raw} siswa` } } } }
+              });
+              attendanceChartInstances.push(chart);
+            });
         }
 
     </script>
