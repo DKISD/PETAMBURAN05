@@ -16,7 +16,7 @@
         .glass-container { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(15px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2); }
         .main-content-area { max-height: calc(100vh - 4rem); overflow-y: auto; }
         .main-content-area::-webkit-scrollbar{width:8px} .main-content-area::-webkit-scrollbar-track{background:rgba(255,255,255,0.1);border-radius:10px} .main-content-area::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.2);border-radius:10px}
-        .input-group{position:relative} .input-field{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:.5rem;background-color:rgba(255,255,255,.5);transition:all .2s ease} .input-field:focus{outline:0;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.2)} .input-field:read-only { background-color: #e5e7eb; color: #6b7280; cursor: not-allowed; } .input-label{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#6b7280;pointer-events:none;transition:all .2s ease} .input-field:focus+.input-label,.input-field:not(:placeholder-shown)+.input-label, .input-field:read-only+.input-label, .input-field:-webkit-autofill+.input-label {top:-10px;font-size:.75rem;padding:0 4px;background-color:#fff;color:#3b82f6}
+        .input-group{position:relative} .input-field{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:.5rem;background-color:rgba(255,255,255,.5);transition:all .2s ease} .input-field:focus{outline:0;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.2)} .input-field:read-only { background-color: #e5e7eb; color: #6b7280; cursor: not-allowed; } .input-label{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#6b7280;pointer-events:none;transition:all .2s ease} .input-field:focus+.input-label,.input-field:not(:placeholder-shown)+.input-label, .input-field:read-only+.input-label, .input-field:-webkit-autofill+.input-label, select.input-field:valid+.input-label {top:-10px;font-size:.75rem;padding:0 4px;background-color:#fff;color:#3b82f6}
         .submit-button{position:relative;overflow:hidden;transition:all .3s ease} .submit-button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 25px rgba(59,130,246,.3)} .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.5);transform:scale(0);animation:ripple-animation .6s linear} @keyframes ripple-animation{to{transform:scale(4);opacity:0}}
         .loader{width:20px;height:20px;border:2px solid #fff;border-bottom-color:transparent;border-radius:50%;display:inline-block;box-sizing:border-box;animation:rotation 1s linear infinite} @keyframes rotation{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
         .rekap-table-container { max-height: 65vh; overflow-y: auto; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 8px; }
@@ -164,15 +164,75 @@
           
           <div id="supervisi-form-items" class="space-y-6"></div>
 
-          <div class="p-4 border border-gray-400 rounded-lg bg-blue-500/10">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Detail Supervisi Kelas</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="input-group"><input type="date" name="SUPERVISI_TANGGAL" class="input-field" placeholder=" "><label class="input-label" style="background:none;top:50%"></label></div>
-                <div class="input-group"><input type="text" name="SUPERVISI_RPP" class="input-field" placeholder=" " readonly><label class="input-label">Link RPP (dari Guru)</label></div>
-                <div class="md:col-span-2 input-group"><input type="text" name="SUPERVISI_DOKUMENTASI" class="input-field" placeholder=" " readonly><label class="input-label">Link Dokumentasi (dari Guru)</label></div>
-                <div class="input-group"><input type="text" name="SUPERVISI_NILAI" class="input-field" placeholder=" "><label class="input-label">Nilai</label></div>
-                <div class="md:col-span-2 input-group"><textarea name="SUPERVISI_KOMENTAR" rows="3" class="input-field" placeholder=" "></textarea><label class="input-label">Komentar/Catatan</label></div>
-            </div>
+          <div class="space-y-6">
+              <!-- Supervisi 1 -->
+              <div class="p-4 border border-gray-400 rounded-lg bg-blue-500/10">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Detail Supervisi Kelas 1</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="input-group"><input type="date" name="SUPERVISI_TANGGAL_1" class="input-field" placeholder=" "><label class="input-label" style="background:none;top:50%"></label></div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Link RPP 1 (dari Guru)</label>
+                        <div id="SUPERVISI_RPP_1_ICON_CONTAINER" class="mt-1 p-2 flex items-center h-10"></div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700">Link Dokumentasi 1 (dari Guru)</label>
+                        <div id="SUPERVISI_DOKUMENTASI_1_ICON_CONTAINER" class="mt-1 p-2 flex items-center h-10"></div>
+                    </div>
+                    <div class="input-group"><input type="text" name="SUPERVISI_NILAI_1" class="input-field" placeholder=" "><label class="input-label">Nilai 1</label></div>
+                    <div class="md:col-span-2 input-group"><textarea name="SUPERVISI_KOMENTAR_1" rows="3" class="input-field" placeholder=" "></textarea><label class="input-label">Komentar/Catatan 1</label></div>
+                </div>
+              </div>
+              <!-- Supervisi 2 -->
+              <div class="p-4 border border-gray-400 rounded-lg bg-blue-500/10">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Detail Supervisi Kelas 2</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="input-group"><input type="date" name="SUPERVISI_TANGGAL_2" class="input-field" placeholder=" "><label class="input-label" style="background:none;top:50%"></label></div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Link RPP 2 (dari Guru)</label>
+                        <div id="SUPERVISI_RPP_2_ICON_CONTAINER" class="mt-1 p-2 flex items-center h-10"></div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700">Link Dokumentasi 2 (dari Guru)</label>
+                        <div id="SUPERVISI_DOKUMENTASI_2_ICON_CONTAINER" class="mt-1 p-2 flex items-center h-10"></div>
+                    </div>
+                    <div class="input-group"><input type="text" name="SUPERVISI_NILAI_2" class="input-field" placeholder=" "><label class="input-label">Nilai 2</label></div>
+                    <div class="md:col-span-2 input-group"><textarea name="SUPERVISI_KOMENTAR_2" rows="3" class="input-field" placeholder=" "></textarea><label class="input-label">Komentar/Catatan 2</label></div>
+                </div>
+              </div>
+              <!-- Supervisi 3 -->
+              <div class="p-4 border border-gray-400 rounded-lg bg-blue-500/10">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Detail Supervisi Kelas 3</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="input-group"><input type="date" name="SUPERVISI_TANGGAL_3" class="input-field" placeholder=" "><label class="input-label" style="background:none;top:50%"></label></div>
+                     <div>
+                        <label class="block text-sm font-medium text-gray-700">Link RPP 3 (dari Guru)</label>
+                        <div id="SUPERVISI_RPP_3_ICON_CONTAINER" class="mt-1 p-2 flex items-center h-10"></div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700">Link Dokumentasi 3 (dari Guru)</label>
+                        <div id="SUPERVISI_DOKUMENTASI_3_ICON_CONTAINER" class="mt-1 p-2 flex items-center h-10"></div>
+                    </div>
+                    <div class="input-group"><input type="text" name="SUPERVISI_NILAI_3" class="input-field" placeholder=" "><label class="input-label">Nilai 3</label></div>
+                    <div class="md:col-span-2 input-group"><textarea name="SUPERVISI_KOMENTAR_3" rows="3" class="input-field" placeholder=" "></textarea><label class="input-label">Komentar/Catatan 3</label></div>
+                </div>
+              </div>
+              <!-- Supervisi 4 -->
+              <div class="p-4 border border-gray-400 rounded-lg bg-blue-500/10">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Detail Supervisi Kelas 4</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="input-group"><input type="date" name="SUPERVISI_TANGGAL_4" class="input-field" placeholder=" "><label class="input-label" style="background:none;top:50%"></label></div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Link RPP 4 (dari Guru)</label>
+                        <div id="SUPERVISI_RPP_4_ICON_CONTAINER" class="mt-1 p-2 flex items-center h-10"></div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700">Link Dokumentasi 4 (dari Guru)</label>
+                        <div id="SUPERVISI_DOKUMENTASI_4_ICON_CONTAINER" class="mt-1 p-2 flex items-center h-10"></div>
+                    </div>
+                    <div class="input-group"><input type="text" name="SUPERVISI_NILAI_4" class="input-field" placeholder=" "><label class="input-label">Nilai 4</label></div>
+                    <div class="md:col-span-2 input-group"><textarea name="SUPERVISI_KOMENTAR_4" rows="3" class="input-field" placeholder=" "></textarea><label class="input-label">Komentar/Catatan 4</label></div>
+                </div>
+              </div>
           </div>
           
           <div class="flex justify-end space-x-4 pt-4">
@@ -237,7 +297,7 @@
         const populateClassFilter = (data) => { const select = document.getElementById('jurnal-classFilter'); const classes = [...new Set(data.filter(i => i['Kelas']).map(i => i['Kelas']))].sort(); select.innerHTML = '<option value="all">Semua Kelas</option>'; classes.forEach(c => select.innerHTML += `<option value="${c}">${c}</option>`); };
         const fetchAndDisplayPiket = () => { const c = document.getElementById('piket-content'); c.innerHTML = loaderHTML; const url = new URL(SCRIPT_URL); url.searchParams.set('action', 'getAllPiket'); url.searchParams.set('startDate', document.getElementById('piket-startDate').value); url.searchParams.set('endDate', document.getElementById('piket-endDate').value); fetch(url).then(r=>r.json()).then(res => { if (!res.success) throw new Error(res.message); allPiketData = res.data; renderPiketTable(res.data); }).catch(err => showNotificationModal('Error', err.message, 'error')); };
         const renderPiketTable = (data) => { const c = document.getElementById('piket-content'); if (data.length === 0) { c.innerHTML = '<p class="text-center p-4">Tidak ada data piket.</p>'; return; } const h = ['Tanggal', 'Guru', 'Kegiatan', 'Kejadian', 'Aksi']; let t = '<div class="rekap-table-container"><table class="rekap-table"><thead><tr>' + h.map(i=>`<th>${i}</th>`).join('') + '</tr></thead><tbody>'; data.forEach(row => { const rd = JSON.stringify(row).replace(/"/g, '&quot;'); t += `<tr data-row='${rd}' data-type="piket"><td>${new Date(row['Tanggal']).toLocaleDateString('id-ID')}</td><td>${row['Nama Guru']}</td><td class="view-more-cell" data-fulltext="${encodeURIComponent(row['Kegiatan']||'')}">${(row['Kegiatan']||'-').substring(0,40)}...</td><td class="view-more-cell" data-fulltext="${encodeURIComponent(row['Kejadian']||'')}">${(row['Kejadian']||'-').substring(0,40)}...</td><td class="whitespace-nowrap"><button class="action-btn edit text-blue-600"><i class="fas fa-edit"></i></button><button class="action-btn delete text-red-600"><i class="fas fa-trash-alt"></i></button></td></tr>`; }); t += '</tbody></table></div>'; c.innerHTML = t; };
-        const openEntryForm = (rowData, type) => { const timestampDate = new Date(rowData.Timestamp); if (isNaN(timestampDate.getTime())) { showNotificationModal('Error', 'Timestamp tidak valid.', 'error'); return; } const m = document.getElementById('entry-form-modal'), sheetName = type === 'jurnal' ? 'GURU' : 'PIKET'; let f = `<div class="glass-container w-full max-w-2xl flex flex-col p-6"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Edit Laporan ${type}</h2><button class="modal-close-button"><i class="fas fa-times fa-lg"></i></button></div><form id="entryForm" class="space-y-4"><input type="hidden" name="action" value="edit"><input type="hidden" name="timestamp" value="${timestampDate.toISOString()}"><input type="hidden" name="sheetName" value="${sheetName}"><div class="grid md:grid-cols-2 gap-4"><div class="input-group"><input type="text" name="Nama Guru" class="input-field" value="${rowData['Nama Guru']||''}" readonly><label class="input-label">Nama</label></div><div class="input-group"><input type="date" name="Tanggal" class="input-field" value="${getLocalDateString(new Date(rowData['Tanggal']))}"><label class="input-label" style="background:none;top:50%"></label></div></div><div class="input-group"><textarea name="Kegiatan" rows="4" class="input-field">${rowData['Kegiatan']||''}</textarea><label class="input-label">Kegiatan</label></div><div class="input-group"><textarea name="Kejadian" rows="3" class="input-field">${rowData['Kejadian']||''}</textarea><label class="input-label">Kejadian</label></div>`; if (type === 'jurnal') { f += `<div class="input-group"><input type="text" name="Kelas" class="input-field" value="${rowData['Kelas']||''}" readonly><label class="input-label">Kelas</label></div><div class="input-group"><input type="text" name="DPL" class="input-field" value="${rowData['DPL']||''}"><label class="input-label">DPL</label></div><div class="grid grid-cols-3 gap-4 p-2 border rounded"><div class="text-center"><label>S</label><input type="number" name="S" class="w-full text-center border rounded" value="${rowData['S']||'0'}"></div><div class="text-center"><label>I</label><input type="number" name="I" class="w-full text-center border rounded" value="${rowData['I']||'0'}"></div><div class="text-center"><label>A</label><input type="number" name="A" class="w-full text-center border rounded" value="${rowData['A']||'0'}"></div></div>`; } f += `<div class="input-group"><textarea name="Keterangan" rows="3" class="input-field">${rowData['Keterangan']||''}</textarea><label class="input-label">Keterangan</label></div><div class="flex justify-end space-x-4 pt-4"><button type="button" class="modal-cancel-button submit-button bg-gray-500">Batal</button><button type="submit" class="submit-button bg-blue-600">Update</button></div></form></div>`; m.innerHTML = f; showModal('entry-form-modal'); };
+        const openEntryForm = (rowData, type) => { const timestampDate = new Date(rowData.Timestamp); if (isNaN(timestampDate.getTime())) { showNotificationModal('Error', 'Timestamp tidak valid.', 'error'); return; } const m = document.getElementById('entry-form-modal'), sheetName = type === 'jurnal' ? 'GURU' : 'PIKET'; let f = `<div class="glass-container w-full max-w-2xl flex flex-col p-6"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Edit Laporan ${type}</h2><button class="modal-close-button"><i class="fas fa-times fa-lg"></i></button></div><form id="entryForm" class="space-y-4"><input type="hidden" name="action" value="edit"><input type="hidden" name="timestamp" value="${timestampDate.toISOString()}"><input type="hidden" name="sheetName" value="${sheetName}"><div class="grid md:grid-cols-2 gap-4"><div class="input-group"><input type="text" name="Nama Guru" class="input-field" value="${rowData['Nama Guru']||''}" readonly><label class="input-label">Nama</label></div><div class="input-group"><input type="date" name="Tanggal" class="input-field" value="${getLocalDateString(new Date(rowData['Tanggal']))}"><label class="input-label" style="background:none;top:50%"></label></div></div><div class="input-group"><textarea name="Kegiatan" rows="4" class="input-field" placeholder=" ">${rowData['Kegiatan']||''}</textarea><label class="input-label">Kegiatan</label></div><div class="input-group"><textarea name="Kejadian" rows="3" class="input-field" placeholder=" ">${rowData['Kejadian']||''}</textarea><label class="input-label">Kejadian</label></div>`; if (type === 'jurnal') { f += `<div class="input-group"><input type="text" name="Kelas" class="input-field" value="${rowData['Kelas']||''}" readonly><label class="input-label">Kelas</label></div><div class="input-group"><input type="text" name="DPL" class="input-field" value="${rowData['DPL']||''}"><label class="input-label">DPL</label></div><div class="grid grid-cols-3 gap-4 p-2 border rounded"><div class="text-center"><label>S</label><input type="number" name="S" class="w-full text-center border rounded" value="${rowData['S']||'0'}"></div><div class="text-center"><label>I</label><input type="number" name="I" class="w-full text-center border rounded" value="${rowData['I']||'0'}"></div><div class="text-center"><label>A</label><input type="number" name="A" class="w-full text-center border rounded" value="${rowData['A']||'0'}"></div></div>`; } f += `<div class="input-group"><textarea name="Keterangan" rows="3" class="input-field" placeholder=" ">${rowData['Keterangan']||''}</textarea><label class="input-label">Keterangan</label></div><div class="flex justify-end space-x-4 pt-4"><button type="button" class="modal-cancel-button submit-button bg-gray-500">Batal</button><button type="submit" class="submit-button bg-blue-600">Update</button></div></form></div>`; m.innerHTML = f; showModal('entry-form-modal'); };
         
         const fetchAndDisplaySupervisi = () => {
             const contentDiv = document.getElementById('supervisi-content');
@@ -294,37 +354,68 @@
             items.forEach(item => {
                 const itemHTML = `
                 <div class="p-4 border border-gray-300 rounded-lg bg-white/50">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4">${item.replace('_', ' ')}</h3>
-                    <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
-                        <div class="input-group">
-                            <input type="text" name="${item}_LINK" class="input-field" readonly>
-                            <label class="input-label">Link (dari Guru)</label>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">${item.replace(/_/g, ' ')}</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-end">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Link (dari Guru)</label>
+                            <div id="${item}_LINK_ICON_CONTAINER" class="mt-1 p-2 flex items-center h-[46px] rounded-lg bg-gray-100 border border-gray-300"></div>
                         </div>
                         <div class="input-group">
-                            <select name="${item}_STATUS" class="input-field">
-                                <option value="">Pilih Status</option>
+                            <select name="${item}_STATUS" class="input-field" required>
+                                <option value="" disabled selected></option>
                                 <option value="Disetujui">Disetujui</option>
                                 <option value="Diperbaiki">Diperbaiki</option>
                                 <option value="Ditolak">Ditolak</option>
                             </select>
+                             <label class="input-label">Status</label>
                         </div>
                         <div class="lg:col-span-2 input-group">
-                            <textarea name="${item}_KOMENTAR" rows="2" class="input-field"></textarea>
+                            <textarea name="${item}_KOMENTAR" rows="2" class="input-field" placeholder=" "></textarea>
                             <label class="input-label">Komentar Supervisi</label>
                         </div>
                     </div>
                 </div>`;
                 container.insertAdjacentHTML('beforeend', itemHTML);
-                form.querySelector(`[name="${item}_LINK"]`).value = rowData[`${item}_LINK`] || '';
+                
+                const link = rowData[`${item}_LINK`] || '';
+                const iconContainer = form.querySelector(`#${item}_LINK_ICON_CONTAINER`);
+                if (link) {
+                    iconContainer.innerHTML = `<a href="${link}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 text-2xl" title="Buka link"><i class="fas fa-external-link-alt"></i></a>`;
+                } else {
+                    iconContainer.innerHTML = `<span class="text-gray-500 italic text-sm">Tidak ada link</span>`;
+                }
+                
                 form.querySelector(`[name="${item}_STATUS"]`).value = rowData[`${item}_STATUS`] || '';
                 form.querySelector(`[name="${item}_KOMENTAR"]`).value = rowData[`${item}_KOMENTAR`] || '';
             });
 
-            const supervisiFields = ['TANGGAL', 'RPP', 'DOKUMENTASI', 'NILAI', 'KOMENTAR'];
-            supervisiFields.forEach(field => {
-                const input = form.querySelector(`[name="SUPERVISI_${field}"]`);
-                if (input) input.value = rowData[`SUPERVISI_${field}`] || '';
-            });
+            for (let i = 1; i <= 4; i++) {
+                ['RPP', 'DOKUMENTASI'].forEach(field => {
+                    const link = rowData[`SUPERVISI_${field}_${i}`] || '';
+                    const iconContainer = form.querySelector(`#SUPERVISI_${field}_${i}_ICON_CONTAINER`);
+                    if (iconContainer) {
+                        if (link) {
+                            iconContainer.innerHTML = `<a href="${link}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 text-2xl" title="Buka link"><i class="fas fa-external-link-alt"></i></a>`;
+                        } else {
+                            iconContainer.innerHTML = `<span class="text-gray-500 italic text-sm">Tidak ada link</span>`;
+                        }
+                    }
+                });
+            }
+
+            const otherSupervisiFields = ['TANGGAL', 'NILAI', 'KOMENTAR'];
+            for (let i = 1; i <= 4; i++) {
+                otherSupervisiFields.forEach(field => {
+                    const input = form.querySelector(`[name="SUPERVISI_${field}_${i}"]`);
+                    if (input) {
+                        if (field === 'TANGGAL' && rowData[`SUPERVISI_${field}_${i}`]) {
+                            input.value = getLocalDateString(new Date(rowData[`SUPERVISI_${field}_${i}`]));
+                        } else {
+                            input.value = rowData[`SUPERVISI_${field}_${i}`] || '';
+                        }
+                    }
+                });
+            }
 
             document.getElementById('supervisi-modal-title').textContent = `Edit Supervisi Kelas ${rowData.KELAS}`;
             showModal('supervisi-form-modal');
