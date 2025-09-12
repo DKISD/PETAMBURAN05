@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUPERVISI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="https://lh3.googleusercontent.com/d/1zIj2DiXilbGbFaLcVJBzSglDCrEOjBl9">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(-45deg, #e0eafc, #cfdef3, #a7bfe8, #6dd5ed);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .glass-container {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .table-container {
+            max-height: 80vh;
+            overflow: auto;
+        }
+
+        .table-container::-webkit-scrollbar { width: 8px; }
+        .table-container::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        .table-container::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
+        .table-container::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.3); }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(5px);
+        }
+        
+        thead tr:nth-child(2) th {
+            top: 50px; /* Adjust this value based on the height of the first header row */
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #1d4ed8;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status-badge { 
+            padding: 4px 10px; 
+            border-radius: 12px; 
+            font-size: 0.8rem; 
+            font-weight: 500; 
+            color: white; 
+            text-transform: capitalize;
+            cursor: help;
+        }
+        .status-disetujui { background-color: #16a34a; }
+        .status-diperbaiki { background-color: #d97706; }
+        .status-ditolak { background-color: #dc2626; }
+        .status-kosong { background-color: #6b7280; }
+        .status-selesai { background-color: #4f46e5; } /* Warna baru untuk status Selesai */
+
+        .icon-button {
+            background-color: rgba(255, 255, 255, 0.5);
+            color: #374151;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .icon-button:hover {
+            background-color: #3b82f6;
+            color: white;
+            transform: translateY(-2px);
+        }
+        #chart-modal {
+            transition: opacity 0.3s ease;
+        }
+
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 md:p-6">
+
+    <div class="w-full max-w-screen-2xl mx-auto">
+        <div class="glass-container p-6 md:p-10">
+            <div class="text-center mb-4">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Rekapitulasi Administrasi Kelas</h1>
+                <p class="text-gray-600 mt-2">Menampilkan status kelengkapan dan supervisi administrasi setiap kelas.</p>
+                <div id="action-buttons" class="flex justify-center items-center space-x-6 my-5">
+                    <a href="index.html" class="icon-button" title="Home">
+                        <i class="fas fa-home fa-lg"></i>
+                    </a>
+                    <button id="chart-button" class="icon-button" title="Lihat Grafik Persentase">
+                        <i class="fas fa-chart-bar fa-lg"></i>
+                    </button>
+                    <a href="Jurnal.html" class="icon-button" title="Halaman Jurnal">
+                        <i class="fas fa-user fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div id="rekap-content" class="table-container">
+                <!-- Loader -->
+                <div id="loader" class="flex justify-center items-center p-16">
+                    <div class="loader"></div>
+                </div>
+
+                <!-- Error Message -->
+                <div id="error-message" class="hidden text-center p-8 text-red-700 bg-red-100 rounded-lg">
+                    <p>Gagal memuat data. Silakan coba lagi nanti.</p>
+                </div>
+                
+                <!-- Table will be inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Modal -->
+    <div id="chart-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+        <div class="glass-container w-full max-w-5xl p-6 relative">
+             <button id="close-chart-modal" class="absolute top-2 right-3 text-gray-600 hover:text-red-500 z-10 text-2xl font-bold">&times;</button>
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h2 class="text-xl font-bold text-center mb-4 text-gray-800">Grafik Administrasi Guru</h2>
+                    <div class="relative h-80">
+                       <canvas id="adm-chart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-center mb-4 text-gray-800">Grafik Supervisi Selesai</h2>
+                     <div class="relative h-80">
+                        <canvas id="supervisi-chart"></canvas>
+                     </div>
+                </div>
+             </div>
+        </div>
+    </div>
+
+    <script>
+        // URL SCRIPT ini diambil dari file Admin.html dan Jurnal.html
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbygW-ntF-gzYfv_amlzu-XPzbgmQwIdEXA0a19xZoXW8J2Kom1iUcZbzglgOjeEC2KR/exec';
+        
+        const rekapContent = document.getElementById('rekap-content');
+        const loader = document.getElementById('loader');
+        const errorMessage = document.getElementById('error-message');
+        const chartButton = document.getElementById('chart-button');
+        const chartModal = document.getElementById('chart-modal');
+        const closeChartModalButton = document.getElementById('close-chart-modal');
+        
+        let allAdmData = [];
+        let admChartInstance = null;
+        let supervisiChartInstance = null;
+        
+        // Daftar kolom administrasi dan supervisi yang akan ditampilkan
+        const ADM_ITEMS = ['RPP', 'PROGRAM', 'SILABUS', 'BANK_SOAL', 'ADM_KELAS', 'EKSTRAKURIKULER'];
+        const SUPERVISI_ITEMS = ['Supervisi 1', 'Supervisi 2', 'Supervisi 3', 'Supervisi 4'];
+
+        const fetchAllAdmData = () => {
+            loader.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+            rekapContent.querySelector('table')?.remove(); 
+
+            const url = new URL(SCRIPT_URL);
+            url.searchParams.append('action', 'getAllAdm');
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(result => {
+                    loader.classList.add('hidden');
+                    if (result.success && result.data) {
+                        allAdmData = result.data; // Simpan data secara global
+                        renderTable(allAdmData);
+                    } else {
+                        throw new Error(result.message || "Data tidak ditemukan atau format respons salah.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Fetch error:", error);
+                    loader.classList.add('hidden');
+                    errorMessage.classList.remove('hidden');
+                    errorMessage.firstElementChild.textContent = `Gagal memuat data: ${error.message}`;
+                });
+        };
+        
+        const renderTable = (data) => {
+            if (data.length === 0) {
+                rekapContent.innerHTML = '<div class="text-center p-8 text-gray-600">Tidak ada data administrasi yang ditemukan.</div>';
+                return;
+            }
+
+            let tableHTML = `
+                <table class="w-full border-collapse text-sm md:text-base">
+                    <thead>
+                        <tr class="text-center">
+                            <th rowspan="2" class="p-3 font-semibold tracking-wide align-middle text-gray-700 border-b-2 border-gray-300">Kelas</th>
+                            <th colspan="6" class="p-3 font-semibold tracking-wide text-gray-700 border-b-2 border-gray-300">Administrasi Guru</th>
+                            <th colspan="4" class="p-3 font-semibold tracking-wide text-gray-700 border-b-2 border-gray-300">Supervisi</th>
+                        </tr>
+                        <tr class="text-center">
+                            <th class="p-2 font-semibold tracking-wide text-xs text-gray-600 border-b-2 border-gray-300">RPP</th>
+                            <th class="p-2 font-semibold tracking-wide text-xs text-gray-600 border-b-2 border-gray-300">PROG</th>
+                            <th class="p-2 font-semibold tracking-wide text-xs text-gray-600 border-b-2 border-gray-300">SILABUS</th>
+                            <th class="p-2 font-semibold tracking-wide text-xs text-gray-600 border-b-2 border-gray-300">BANK SOAL</th>
+                            <th class="p-2 font-semibold tracking-wide text-xs text-gray-600 border-b-2 border-gray-300">ADM KELAS</th>
+                            <th class="p-2 font-semibold tracking-wide text-xs text-gray-600 border-b-2 border-gray-300">EKSTRA</th>
+                            <th class="p-2 font-semibold tracking-wide text-xs text-gray-600 border-b-2 border-gray-300">1</th>
+                            <th class="p-2 font-semibold tracking-wide text-xs text-gray-600 border-b-2 border-gray-300">2</th>
+                            <th class="p-2 font-semibold tracking-wide text-xs text-gray-600 border-b-2 border-gray-300">3</th>
+                            <th class="p-2 font-semibold tracking-wide text-xs text-gray-600 border-b-2 border-gray-300">4</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+            `;
+
+            data.forEach(classData => {
+                tableHTML += `<tr class="bg-white/30 hover:bg-white/60 transition-colors duration-200">`;
+                tableHTML += `<td class="p-3 font-bold text-blue-600 whitespace-nowrap">${classData.KELAS || '-'}</td>`;
+
+                // Render Administrasi Items
+                ADM_ITEMS.forEach(item => {
+                    const hasLink = classData[`${item}_LINK`];
+                    const status = (classData[`${item}_STATUS`] || '').toLowerCase();
+                    
+                    let statusClass = 'status-kosong';
+                    let statusText = 'Kosong';
+
+                    if (hasLink) {
+                        if (status === 'disetujui') { statusClass = 'status-disetujui'; statusText = 'Disetujui'; }
+                        else if (status === 'diperbaiki') { statusClass = 'status-diperbaiki'; statusText = 'Perbaikan'; }
+                        else if (status === 'ditolak') { statusClass = 'status-ditolak'; statusText = 'Ditolak'; }
+                        else { statusClass = 'bg-blue-500'; statusText = 'Diajukan'; }
+                    }
+
+                    tableHTML += `<td class="p-3 text-center">`;
+                    tableHTML += `<span class="status-badge ${statusClass}">${statusText}</span>`;
+                    tableHTML += `</td>`;
+                });
+
+                // Render Supervisi Items with Details
+                SUPERVISI_ITEMS.forEach((item, index) => {
+                    const i = index + 1;
+                    const tanggal = classData[`SUPERVISI_TANGGAL_${i}`];
+                    const rppLink = classData[`SUPERVISI_RPP_${i}`];
+                    const docLink = classData[`SUPERVISI_DOKUMENTASI_${i}`];
+                    const komentar = classData[`SUPERVISI_KOMENTAR_${i}`];
+                    const nilai = classData[`SUPERVISI_NILAI_${i}`];
+                    const status = (classData[`SUPERVISI_STATUS_${i}`] || '').toLowerCase();
+                    
+                    let formattedDate = '-';
+                    if (tanggal) {
+                        try {
+                            formattedDate = new Date(tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                        } catch(e) { /* ignore invalid date */ }
+                    }
+                    
+                    let statusClass = 'status-kosong';
+                    let statusText = 'Kosong';
+                    let statusTitle = '';
+
+                    if (nilai) {
+                        statusClass = 'status-selesai';
+                        statusText = 'Selesai';
+                        statusTitle = `title="Nilai: ${nilai}"`;
+                    } else if (tanggal || rppLink || docLink) {
+                        if (status === 'disetujui') { statusClass = 'status-disetujui'; statusText = 'Disetujui'; }
+                        else if (status === 'diperbaiki') { statusClass = 'status-diperbaiki'; statusText = 'Perbaikan'; }
+                        else if (status === 'ditolak') { statusClass = 'status-ditolak'; statusText = 'Ditolak'; }
+                        else { statusClass = 'bg-blue-500'; statusText = 'Diajukan'; }
+                    }
+
+                    tableHTML += `<td class="p-2 align-top text-xs">`;
+                    tableHTML += `<div class="flex flex-col space-y-2">`;
+                    
+                    tableHTML += `<div><span class="status-badge ${statusClass}" ${statusTitle}>${statusText}</span></div>`;
+                    tableHTML += `<div class="flex items-center space-x-1.5 text-gray-700"><i class="fas fa-calendar-alt w-4 text-center text-gray-500"></i><span>${formattedDate}</span></div>`;
+                    tableHTML += `<div class="flex items-center space-x-4 pt-1">`;
+                    
+                    const rppClass = rppLink ? 'text-blue-600 hover:text-blue-800' : 'text-gray-300 cursor-not-allowed';
+                    const rppHref = rppLink ? `href="${rppLink}" target="_blank" rel="noopener noreferrer"` : 'href="#" onclick="return false;"';
+                    tableHTML += `<a ${rppHref} class="${rppClass}" title="Lihat RPP"><i class="fas fa-file-alt fa-lg"></i></a>`;
+                    
+                    const docClass = docLink ? 'text-green-600 hover:text-green-800' : 'text-gray-300 cursor-not-allowed';
+                    const docHref = docLink ? `href="${docLink}" target="_blank" rel="noopener noreferrer"` : 'href="#" onclick="return false;"';
+                    tableHTML += `<a ${docHref} class="${docClass}" title="Lihat Dokumentasi"><i class="fas fa-camera fa-lg"></i></a>`;
+                                  
+                    const komentarClass = komentar ? 'text-yellow-600 hover:text-yellow-800 cursor-pointer' : 'text-gray-300 cursor-not-allowed';
+                    const komentarTitle = komentar ? `Komentar: ${komentar.replace(/"/g, '&quot;')}` : 'Tidak ada komentar';
+                    tableHTML += `<div class="${komentarClass}" title="${komentarTitle}"><i class="fas fa-comment-dots fa-lg"></i></div>`;
+                    
+                    tableHTML += `</div></div></td>`;
+                });
+
+                tableHTML += `</tr>`;
+            });
+
+            tableHTML += `</tbody></table>`;
+            rekapContent.innerHTML = tableHTML;
+        };
+        
+        const renderAdminChart = (data) => {
+            if (!data || data.length === 0) return;
+            const itemCounts = ADM_ITEMS.reduce((acc, item) => ({...acc, [item]: 0}), {});
+            data.forEach(classData => {
+                ADM_ITEMS.forEach(item => {
+                    if (classData[`${item}_LINK`]) itemCounts[item]++;
+                });
+            });
+
+            const chartLabels = ADM_ITEMS.map(item => item.replace('_', ' '));
+            const chartData = ADM_ITEMS.map(item => itemCounts[item]);
+            const totalClasses = data.length;
+            const ctx = document.getElementById('adm-chart').getContext('2d');
+            
+            if (admChartInstance) admChartInstance.destroy();
+
+            admChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Jumlah Kelas yang Sudah Mengisi',
+                        data: chartData,
+                        backgroundColor: ['rgba(255, 99, 132, 0.6)','rgba(54, 162, 235, 0.6)','rgba(255, 206, 86, 0.6)','rgba(75, 192, 192, 0.6)','rgba(153, 102, 255, 0.6)','rgba(255, 159, 64, 0.6)'],
+                        borderColor: ['rgba(255, 99, 132, 1)','rgba(54, 162, 235, 1)','rgba(255, 206, 86, 1)','rgba(75, 192, 192, 1)','rgba(153, 102, 255, 1)','rgba(255, 159, 64, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: false }, // Title is in the HTML
+                         tooltip: {
+                            callbacks: {
+                                label: (c) => c.parsed.y !== null ? `${c.dataset.label || ''}: ${c.parsed.y} dari ${totalClasses} kelas` : ''
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, max: totalClasses, ticks: { stepSize: 1, color: '#334155' }, grid: { color: 'rgba(0, 0, 0, 0.05)'}},
+                        x: { ticks: { color: '#334155' }, grid: { display: false } }
+                    }
+                }
+            });
+        };
+
+        const renderSupervisiChart = (data) => {
+            if (!data || data.length === 0) return;
+            const supervisiCounts = { 1: 0, 2: 0, 3: 0, 4: 0 };
+            data.forEach(classData => {
+                for(let i = 1; i <= 4; i++) {
+                    if (classData[`SUPERVISI_NILAI_${i}`]) {
+                        supervisiCounts[i]++;
+                    }
+                }
+            });
+
+            const chartLabels = ['Supervisi 1', 'Supervisi 2', 'Supervisi 3', 'Supervisi 4'];
+            const chartData = Object.values(supervisiCounts);
+            const totalClasses = data.length;
+            const ctx = document.getElementById('supervisi-chart').getContext('2d');
+
+            if (supervisiChartInstance) supervisiChartInstance.destroy();
+            
+            supervisiChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Jumlah Kelas yang Selesai Supervisi',
+                        data: chartData,
+                        backgroundColor: ['#8b5cf6', '#ec4899', '#f97316', '#10b981'],
+                        borderColor: ['#7c3aed', '#db2777', '#ea580c', '#059669'],
+                        borderWidth: 1
+                    }]
+                },
+                 options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: false }, // Title is in the HTML
+                         tooltip: {
+                            callbacks: {
+                                label: (c) => c.parsed.y !== null ? `${c.dataset.label || ''}: ${c.parsed.y} dari ${totalClasses} kelas` : ''
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, max: totalClasses, ticks: { stepSize: 1, color: '#334155' }, grid: { color: 'rgba(0, 0, 0, 0.05)'}},
+                        x: { ticks: { color: '#334155' }, grid: { display: false } }
+                    }
+                }
+            });
+        };
+
+        const showChartModal = () => {
+            renderAdminChart(allAdmData);
+            renderSupervisiChart(allAdmData);
+            chartModal.classList.remove('hidden');
+        };
+
+        const hideChartModal = () => {
+            chartModal.classList.add('hidden');
+            if (admChartInstance) { admChartInstance.destroy(); admChartInstance = null; }
+            if (supervisiChartInstance) { supervisiChartInstance.destroy(); supervisiChartInstance = null; }
+        };
+
+        document.addEventListener('DOMContentLoaded', fetchAllAdmData);
+        chartButton.addEventListener('click', showChartModal);
+        closeChartModalButton.addEventListener('click', hideChartModal);
+        chartModal.addEventListener('click', (e) => {
+            if (e.target === chartModal) {
+                hideChartModal();
+            }
+        });
+
+    </script>
+</body>
+</html>
+
